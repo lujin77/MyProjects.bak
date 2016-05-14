@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml" width="40" height="24">
+	<mx:Script>
+		<![CDATA[
+			import myevent.DataGridEvent;
+			private function select():void{
+				this.parent.dispatchEvent(new DataGridEvent(data,check.selected));
+			}
+		]]>
+	</mx:Script>
+	<mx:CheckBox id="check" x="0" y="0" change="select()"  />
+</mx:Canvas>

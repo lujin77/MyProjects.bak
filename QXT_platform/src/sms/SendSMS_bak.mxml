@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				   xmlns:s="library://ns.adobe.com/flex/spark" 
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   backgroundColor="#F1F4F8"
+				   fontSize="18" fontWeight="normal" title="发送短信"
+				   left="10" right="10" top="10" bottom="10">
+	<fx:Declarations>
+		<s:RadioButtonGroup id="NoType"/>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+
+	<s:VGroup left="30" right="30" top="10" height="800" fontSize="14" autoLayout="true">
+		<s:FormItem label="当前余额:">
+			<s:Label color="#FF0000" text="XX条"/>
+			
+		</s:FormItem>
+		<s:FormItem width="455" label="发送内容:">
+			<s:TextArea width="350" height="80"/>
+		</s:FormItem>
+		<s:HGroup width="200" height="20">
+			<s:Label text="                    已输入:"/>
+			<s:Label color="#FF0000" text="10"/>
+			<s:Label text="字，将分作"/>
+			<s:Label color="#FF0000" text="1"/>
+			<s:Label text="短信发送，最多350个字，每67个字按一条收费。"/>
+		</s:HGroup>
+		<s:FormItem width="455" label="发送号码:">
+			<s:TextArea width="350" height="80"/>
+		</s:FormItem>
+		<s:HGroup width="200" height="20">
+			<s:Label text="                    每行一个号码，多个号码自动以英文逗号分隔，不要超过20万号码。当前共"/>
+			<s:Label color="#FF0000" text="0"/>
+			<s:Label text="个号码"/>
+		</s:HGroup>
+		<s:FormItem width="455" label="导入号码:">
+			<s:HGroup width="364" height="30">
+				<s:TextInput enabled="false"/>
+				<s:Button width="60" label="浏览..." cornerRadius="0"/>
+				<s:Button width="50" label="提取" cornerRadius="0"/>
+				<s:Button label="重号过滤" cornerRadius="0"/>
+			</s:HGroup>
+		</s:FormItem>
+		<s:FormItem width="600" label="号码方式:">
+			<s:HGroup width="490" height="30">
+				<s:RadioButton label="号码列表发送" groupName="NoType" selected="true"/>
+				<s:RadioButton label="号码群发簿发送" groupName="NoType"/>
+				<s:RadioButton label="通讯录联系组" groupName="NoType"/>
+				<s:DropDownList></s:DropDownList>
+			</s:HGroup>
+		</s:FormItem>
+		<s:FormItem width="600" label="号码薄名:">
+			<s:HGroup width="490" height="30">
+				<s:CheckBox label="存入群发簿以便下次群发，并取名"/>
+				<s:TextInput/>
+			</s:HGroup>
+		</s:FormItem>
+		<s:FormItem width="600" label="号码薄名:">
+			<s:HGroup width="490" height="30">
+				<s:CheckBox label="定时发送"/>
+				<mx:DateField/>
+				<s:ComboBox width="50">
+					<s:ArrayList>
+						<fx:Object label="00"/>
+						<fx:Object label="01"/>
+						<fx:Object label="02"/>
+						<fx:Object label="03"/>
+						<fx:Object label="04"/>
+						<fx:Object label="05"/>
+						<fx:Object label="06"/>
+						<fx:Object label="07"/>
+						<fx:Object label="08"/>
+						<fx:Object label="09"/>
+						<fx:Object label="10"/>
+						<fx:Object label="11"/>
+						<fx:Object label="12"/>
+						<fx:Object label="13"/>
+						<fx:Object label="14"/>
+						<fx:Object label="15"/>
+						<fx:Object label="16"/>
+						<fx:Object label="17"/>
+						<fx:Object label="18"/>
+						<fx:Object label="19"/>
+						<fx:Object label="20"/>
+						<fx:Object label="21"/>
+						<fx:Object label="22"/>
+						<fx:Object label="23"/>
+					</s:ArrayList>
+				</s:ComboBox>
+				<s:Label height="25" text="时" verticalAlign="middle"/>
+				<s:ComboBox width="50">
+					<s:ArrayList>
+						<fx:Object label="00"/>
+						<fx:Object label="05"/>
+						<fx:Object label="10"/>
+						<fx:Object label="15"/>
+						<fx:Object label="20"/>
+						<fx:Object label="25"/>
+						<fx:Object label="30"/>
+						<fx:Object label="35"/>
+						<fx:Object label="40"/>
+						<fx:Object label="45"/>
+						<fx:Object label="50"/>
+					</s:ArrayList>
+				</s:ComboBox>
+				<s:Label height="25" text="分" verticalAlign="middle"/>
+			</s:HGroup>
+		</s:FormItem>
+		<s:FormItem width="600" label="号码薄名:">
+			<s:HGroup width="490" height="30">
+				<s:Button label="按钮"/>
+				<s:Button label="按钮"/>
+			</s:HGroup>
+		</s:FormItem>
+	</s:VGroup>
+
+</s:Panel>

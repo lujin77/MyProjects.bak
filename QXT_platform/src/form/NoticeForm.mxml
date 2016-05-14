@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="600" height="500" fontSize="14" title="公告">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entity.AuthenticationInfo;
+			import entity.User;
+			
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			public function init(title:String, time:String, content:String):void {
+				txtTitle.text = title;
+				txtTime.text = time;
+				txtContent.text = content;
+			}
+			
+			protected function btnClose_clickHandler(event:MouseEvent):void
+			{
+				PopUpManager.removePopUp(this);
+			}
+			
+		]]>
+	</fx:Script>
+	<s:Label id="txtTitle" y="10" left="10" right="10" height="25" fontWeight="normal" text="标题"
+			 textAlign="center" verticalAlign="middle"/>
+	<s:Label id="txtTime" y="43" width="222" height="25" color="#1800FF" horizontalCenter="0" text="2013-10-01 10:11:11"
+			 textAlign="center" verticalAlign="middle"/>
+	<s:TextArea id="txtContent" y="82" left="10" right="10" height="375" text="RichText" />
+	<s:Button id="btnClose" x="560" y="-30" width="30" height="30" label="x"
+			  click="btnClose_clickHandler(event)" cornerRadius="20"/>
+</s:Panel>

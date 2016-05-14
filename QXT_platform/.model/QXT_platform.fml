@@ -1,0 +1,644 @@
+
+<model xmlns="http://ns.adobe.com/Fiber/1.0">
+  <annotation name="ActionScriptGeneration">
+    <item name="FullyQualifyReferences">true</item>
+  </annotation>
+  <service name="SmsService">
+    <annotation name="ActionScriptGeneration">
+      <item name="WSDL-service">SmsService</item>
+      <item name="ServiceType">WebService</item>
+      <item name="WSDL">http://www.10086yn.net/SmsService.asmx?wsdl</item>
+      <item name="Package">services.smsservice</item>
+      <item name="WSDL-port">SmsServiceSoap</item>
+    </annotation>
+    <annotation name="ServiceTypeGroup">
+      <item name="ServiceBackendType">WebService</item>
+    </annotation>
+    <annotation name="ServiceConfig">
+      <item name="DEFAULT_ENTITY_PACKAGE">valueObjects</item>
+      <item name="WSDL-endpoint">http://www.10086yn.net/SmsService.asmx</item>
+      <item name="LINKED_FILE"></item>
+    </annotation>
+    <function name="SendSMS" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="SOAPAction">http://tempuri.org/SendSMS</item>
+        <item name="SendSMS">http://tempuri.org/,SendSMS</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string,string,integer,integer,string,string,string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="user_id" type="string"/>
+      <parameter name="username" type="string"/>
+      <parameter name="messsage" type="string"/>
+      <parameter name="smsNum" type="integer"/>
+      <parameter name="count" type="integer"/>
+      <parameter name="tels" type="string"/>
+      <parameter name="time" type="string"/>
+      <parameter name="file" type="string"/>
+      <parameter name="token" type="string"/>
+    </function>
+    <function name="OpenExcel" return-type="opaque">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="SOAPAction">http://tempuri.org/OpenExcel</item>
+        <item name="OpenExcel">http://tempuri.org/,OpenExcel</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string</item>
+        <item name="returnType">opaque</item>
+      </annotation>
+      <parameter name="filePath" type="string"/>
+    </function>
+    <function name="SaveGroup" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="SOAPAction">http://tempuri.org/SaveGroup</item>
+        <item name="SaveGroup">http://tempuri.org/,SaveGroup</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string,string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="user_id" type="string"/>
+      <parameter name="name" type="string"/>
+      <parameter name="data" type="string"/>
+      <parameter name="token" type="string"/>
+    </function>
+    <function name="ReSendSMS" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="ReSendSMS">http://tempuri.org/,ReSendSMS</item>
+        <item name="SOAPAction">http://tempuri.org/ReSendSMS</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string,string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="sms_id" type="string"/>
+      <parameter name="user_id" type="string"/>
+      <parameter name="username" type="string"/>
+      <parameter name="token" type="string"/>
+    </function>
+    <function name="SubmitSMS" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="SubmitSMS">http://tempuri.org/,SubmitSMS</item>
+        <item name="SOAPAction">http://tempuri.org/SubmitSMS</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string,string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="fileName" type="string"/>
+      <parameter name="user_id" type="string"/>
+      <parameter name="username" type="string"/>
+      <parameter name="token" type="string"/>
+    </function>
+    <function name="ExportExcel" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="ExportExcel">http://tempuri.org/,ExportExcel</item>
+        <item name="SOAPAction">http://tempuri.org/ExportExcel</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="user_id" type="string"/>
+      <parameter name="condition" type="string"/>
+      <parameter name="token" type="string"/>
+    </function>
+    <function name="UploadExcel" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="SOAPAction">http://tempuri.org/UploadExcel</item>
+        <item name="UploadExcel">http://tempuri.org/,UploadExcel</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,blob,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="fileName" type="string"/>
+      <parameter name="filestrem" type="blob"/>
+      <parameter name="token" type="string"/>
+    </function>
+  </service>
+  <service name="UserService">
+    <annotation name="ActionScriptGeneration">
+      <item name="WSDL-service">UserService</item>
+      <item name="ServiceType">WebService</item>
+      <item name="WSDL">http://www.10086yn.net/UserService.asmx?wsdl</item>
+      <item name="Package">services.userservice</item>
+      <item name="WSDL-port">UserServiceSoap</item>
+    </annotation>
+    <annotation name="ServiceTypeGroup">
+      <item name="ServiceBackendType">WebService</item>
+    </annotation>
+    <annotation name="WSDLCollectionElementTypes">
+      <item name="http://tempuri.org/,ArrayOfString">string::http://www.w3.org/2001/XMLSchema,string</item>
+    </annotation>
+    <annotation name="ServiceConfig">
+      <item name="DEFAULT_ENTITY_PACKAGE">valueObjects</item>
+      <item name="WSDL-endpoint">http://www.10086yn.net/UserService.asmx</item>
+      <item name="LINKED_FILE"></item>
+    </annotation>
+    <function name="UpdateUser" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="SOAPAction">http://tempuri.org/UpdateUser</item>
+        <item name="UpdateUser">http://tempuri.org/,UpdateUser</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string,string,string,string,string,string,string,string,string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="id" type="string"/>
+      <parameter name="userid" type="string"/>
+      <parameter name="name" type="string"/>
+      <parameter name="sex" type="string"/>
+      <parameter name="mobile" type="string"/>
+      <parameter name="tel" type="string"/>
+      <parameter name="qq" type="string"/>
+      <parameter name="email" type="string"/>
+      <parameter name="com_name" type="string"/>
+      <parameter name="com_addr" type="string"/>
+      <parameter name="token" type="string"/>
+    </function>
+    <function name="EditNoList" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="SOAPAction">http://tempuri.org/EditNoList</item>
+        <item name="EditNoList">http://tempuri.org/,EditNoList</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string,string,string,string,string,string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="id" type="string"/>
+      <parameter name="userid" type="string"/>
+      <parameter name="groupId" type="string"/>
+      <parameter name="groupName" type="string"/>
+      <parameter name="content" type="string"/>
+      <parameter name="tels" type="string"/>
+      <parameter name="shared_users" type="string"/>
+      <parameter name="token" type="string"/>
+    </function>
+    <function name="UpdatePsw" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="SOAPAction">http://tempuri.org/UpdatePsw</item>
+        <item name="UpdatePsw">http://tempuri.org/,UpdatePsw</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string,string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="id" type="string"/>
+      <parameter name="userid" type="string"/>
+      <parameter name="psw" type="string"/>
+      <parameter name="token" type="string"/>
+    </function>
+    <function name="Register" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="SOAPAction">http://tempuri.org/Register</item>
+        <item name="Register">http://tempuri.org/,Register</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string,string,string,string,string,string,string,string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="userid" type="string"/>
+      <parameter name="password" type="string"/>
+      <parameter name="name" type="string"/>
+      <parameter name="sex" type="string"/>
+      <parameter name="mobile" type="string"/>
+      <parameter name="tel" type="string"/>
+      <parameter name="qq" type="string"/>
+      <parameter name="email" type="string"/>
+      <parameter name="com_name" type="string"/>
+      <parameter name="com_addr" type="string"/>
+    </function>
+    <function name="Login" return-type="User">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="Login">http://tempuri.org/,Login</item>
+        <item name="SOAPAction">http://tempuri.org/Login</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string</item>
+        <item name="returnType">User</item>
+      </annotation>
+      <parameter name="userid" type="string"/>
+      <parameter name="password" type="string"/>
+    </function>
+    <function name="AddNoList" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="SOAPAction">http://tempuri.org/AddNoList</item>
+        <item name="AddNoList">http://tempuri.org/,AddNoList</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string,string,string,string,string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="id" type="string"/>
+      <parameter name="userid" type="string"/>
+      <parameter name="groupName" type="string"/>
+      <parameter name="content" type="string"/>
+      <parameter name="tels" type="string"/>
+      <parameter name="shared_user" type="string"/>
+      <parameter name="token" type="string"/>
+    </function>
+    <function name="getAccount" return-type="Account">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="SOAPAction">http://tempuri.org/getAccount</item>
+        <item name="getAccount">http://tempuri.org/,getAccount</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string</item>
+        <item name="returnType">Account</item>
+      </annotation>
+      <parameter name="userid" type="string"/>
+      <parameter name="password" type="string"/>
+    </function>
+    <function name="UpdateSign" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="SOAPAction">http://tempuri.org/UpdateSign</item>
+        <item name="UpdateSign">http://tempuri.org/,UpdateSign</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="id" type="string"/>
+      <parameter name="sign" type="string"/>
+      <parameter name="token" type="string"/>
+    </function>
+    <function name="GetSharedUsers" return-type="string[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="SOAPAction">http://tempuri.org/GetSharedUsers</item>
+        <item name="GetSharedUsers">http://tempuri.org/,GetSharedUsers</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="group_id" type="string"/>
+      <parameter name="token" type="string"/>
+    </function>
+    <function name="GetNoWithGroups" return-type="string[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="GetNoWithGroups">http://tempuri.org/,GetNoWithGroups</item>
+        <item name="SOAPAction">http://tempuri.org/GetNoWithGroups</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="group_id" type="string"/>
+      <parameter name="type" type="string"/>
+      <parameter name="token" type="string"/>
+    </function>
+    <function name="ExportExcel" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="ExportExcel">http://tempuri.org/,ExportExcel</item>
+        <item name="SOAPAction">http://tempuri.org/ExportExcel</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="user_id" type="string"/>
+      <parameter name="condition" type="string"/>
+      <parameter name="token" type="string"/>
+    </function>
+    <function name="EditGroup" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="EditGroup">http://tempuri.org/,EditGroup</item>
+        <item name="SOAPAction">http://tempuri.org/EditGroup</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string,string,string,string,string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="id" type="string"/>
+      <parameter name="userid" type="string"/>
+      <parameter name="groupId" type="string"/>
+      <parameter name="groupName" type="string"/>
+      <parameter name="content" type="string"/>
+      <parameter name="contract_user_id" type="string"/>
+      <parameter name="token" type="string"/>
+    </function>
+    <function name="DeleteGroup" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="SOAPAction">http://tempuri.org/DeleteGroup</item>
+        <item name="DeleteGroup">http://tempuri.org/,DeleteGroup</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string,string,string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="id" type="string"/>
+      <parameter name="userid" type="string"/>
+      <parameter name="groupId" type="string"/>
+      <parameter name="deleteType" type="string"/>
+      <parameter name="token" type="string"/>
+    </function>
+    <function name="AddGroup" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="AddGroup">http://tempuri.org/,AddGroup</item>
+        <item name="SOAPAction">http://tempuri.org/AddGroup</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string,string,string,string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="id" type="string"/>
+      <parameter name="userid" type="string"/>
+      <parameter name="groupName" type="string"/>
+      <parameter name="content" type="string"/>
+      <parameter name="contract_user_id" type="string"/>
+      <parameter name="token" type="string"/>
+    </function>
+  </service>
+  <entity name="User">
+    <annotation name="EntityProperties">
+      <item name="EntityOriginalName">User</item>
+    </annotation>
+    <annotation name="service Group">
+      <item name="service">UserService</item>
+    </annotation>
+    <annotation name="ServerProperties">
+      <item name="IncludeRemoteClass">nonempty</item>
+    </annotation>
+    <annotation name="ActionScriptGeneration">
+      <item name="Package">valueObjects</item>
+    </annotation>
+    <property name="id" type="string"/>
+    <property name="userid" type="string"/>
+    <property name="psw" type="string"/>
+    <property name="name" type="string"/>
+    <property name="sex" type="string"/>
+    <property name="mobile" type="string"/>
+    <property name="tel" type="string"/>
+    <property name="qq" type="string"/>
+    <property name="email" type="string"/>
+    <property name="com_name" type="string"/>
+    <property name="com_addr" type="string"/>
+    <property name="state" type="string"/>
+    <property name="level" type="string"/>
+    <property name="sms" type="integer"/>
+    <property name="msms" type="integer"/>
+    <property name="reply" type="integer"/>
+    <property name="manager_id" type="string"/>
+    <property name="sms_sign" type="string"/>
+  </entity>
+  <entity name="Account">
+    <annotation name="EntityProperties">
+      <item name="EntityOriginalName">Account</item>
+    </annotation>
+    <annotation name="service Group">
+      <item name="service">UserService</item>
+    </annotation>
+    <annotation name="ServerProperties">
+      <item name="IncludeRemoteClass">nonempty</item>
+    </annotation>
+    <annotation name="ActionScriptGeneration">
+      <item name="Package">valueObjects</item>
+    </annotation>
+    <property name="sms" type="integer"/>
+    <property name="msms" type="integer"/>
+    <property name="reply" type="integer"/>
+  </entity>
+  <service name="UtilService">
+    <annotation name="ActionScriptGeneration">
+      <item name="WSDL-service">UtilService</item>
+      <item name="ServiceType">WebService</item>
+      <item name="WSDL">http://www.10086yn.net/UtilService.asmx?wsdl</item>
+      <item name="Package">services.utilservice</item>
+      <item name="WSDL-port">UtilServiceSoap</item>
+    </annotation>
+    <annotation name="ServiceTypeGroup">
+      <item name="ServiceBackendType">WebService</item>
+    </annotation>
+    <annotation name="WSDLCollectionElementTypes">
+      <item name="http://tempuri.org/,ArrayOfString">string::http://www.w3.org/2001/XMLSchema,string</item>
+      <item name="http://tempuri.org/,ArrayOfTurple">Turple::http://tempuri.org/,Turple</item>
+    </annotation>
+    <annotation name="ServiceConfig">
+      <item name="DEFAULT_ENTITY_PACKAGE">valueObjects</item>
+      <item name="WSDL-endpoint">http://www.10086yn.net/UtilService.asmx</item>
+      <item name="LINKED_FILE"></item>
+    </annotation>
+    <function name="CheckExist" return-type="boolean">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="SOAPAction">http://tempuri.org/CheckExist</item>
+        <item name="CheckExist">http://tempuri.org/,CheckExist</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string</item>
+        <item name="returnType">boolean</item>
+      </annotation>
+      <parameter name="table" type="string"/>
+      <parameter name="condition" type="string"/>
+    </function>
+    <function name="GetStrList" return-type="string[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="GetStrList">http://tempuri.org/,GetStrList</item>
+        <item name="SOAPAction">http://tempuri.org/GetStrList</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string,string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="table" type="string"/>
+      <parameter name="condition" type="string"/>
+      <parameter name="colName" type="string"/>
+      <parameter name="token" type="string"/>
+    </function>
+    <function name="Insert" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="Insert">http://tempuri.org/,Insert</item>
+        <item name="SOAPAction">http://tempuri.org/Insert</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string,string,string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="user_id" type="string"/>
+      <parameter name="username" type="string"/>
+      <parameter name="tableName" type="string"/>
+      <parameter name="values" type="string"/>
+      <parameter name="token" type="string"/>
+    </function>
+    <function name="DeleteAll" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="SOAPAction">http://tempuri.org/DeleteAll</item>
+        <item name="DeleteAll">http://tempuri.org/,DeleteAll</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string,string,string,string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="user_id" type="string"/>
+      <parameter name="username" type="string"/>
+      <parameter name="tableName" type="string"/>
+      <parameter name="col" type="string"/>
+      <parameter name="list" type="string"/>
+      <parameter name="token" type="string"/>
+    </function>
+    <function name="Delete" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="SOAPAction">http://tempuri.org/Delete</item>
+        <item name="Delete">http://tempuri.org/,Delete</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string,string,string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="user_id" type="string"/>
+      <parameter name="username" type="string"/>
+      <parameter name="tableName" type="string"/>
+      <parameter name="filters" type="string"/>
+      <parameter name="token" type="string"/>
+    </function>
+    <function name="Query" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="Query">http://tempuri.org/,Query</item>
+        <item name="SOAPAction">http://tempuri.org/Query</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string,string,string,string,string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="pageIndex" type="string"/>
+      <parameter name="pageSize" type="string"/>
+      <parameter name="tableName" type="string"/>
+      <parameter name="order" type="string"/>
+      <parameter name="columns" type="string"/>
+      <parameter name="filters" type="string"/>
+      <parameter name="token" type="string"/>
+    </function>
+    <function name="GetNoGroups" return-type="Turple[]">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="GetNoGroups">http://tempuri.org/,GetNoGroups</item>
+        <item name="SOAPAction">http://tempuri.org/GetNoGroups</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string</item>
+        <item name="returnType">Turple</item>
+      </annotation>
+      <parameter name="user_id" type="string"/>
+      <parameter name="type" type="string"/>
+    </function>
+    <function name="Update" return-type="string">
+      <annotation name="analyze group">
+        <item name="analyzed">true</item>
+      </annotation>
+      <annotation name="WSDLName">
+        <item name="Update">http://tempuri.org/,Update</item>
+        <item name="SOAPAction">http://tempuri.org/Update</item>
+      </annotation>
+      <annotation name="original signature">
+        <item name="inputParams">string,string,string,string,string,string</item>
+        <item name="returnType">string</item>
+      </annotation>
+      <parameter name="user_id" type="string"/>
+      <parameter name="username" type="string"/>
+      <parameter name="tableName" type="string"/>
+      <parameter name="values" type="string"/>
+      <parameter name="filters" type="string"/>
+      <parameter name="token" type="string"/>
+    </function>
+  </service>
+  <entity name="Turple">
+    <annotation name="EntityProperties">
+      <item name="EntityOriginalName">Turple</item>
+    </annotation>
+    <annotation name="service Group">
+      <item name="service">UtilService</item>
+    </annotation>
+    <annotation name="ServerProperties">
+      <item name="IncludeRemoteClass">nonempty</item>
+    </annotation>
+    <annotation name="ActionScriptGeneration">
+      <item name="Package">valueObjects</item>
+    </annotation>
+    <property name="label" type="string"/>
+    <property name="data" type="string"/>
+  </entity>
+</model>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   width="100%" height="100%" backgroundColor="#F1F4F8" borderVisible="true"
+				   borderWeight="1" cornerRadius="10" dropShadowVisible="true">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<s:VGroup x="0" y="0" width="100%" height="100%">
+		<s:BorderContainer top="0" width="100%" height="30" backgroundColor="#6A94BA"
+						   borderVisible="false" borderWeight="0" cornerRadius="10"
+						   horizontalCenter="0">
+			<s:BorderContainer right="-1" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			<s:BorderContainer left="0" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			
+			<s:Image x="24" y="3" source="img/bg/tab.gif"/>
+			<s:Label left="65" top="10" fontFamily="中易黑体" fontSize="14" fontWeight="bold" text="发送短信"/>
+		</s:BorderContainer>
+		<s:Scroller width="100%" height="100%">
+			<s:Group x="268" y="316" width="100%" height="100%">
+			</s:Group>
+
+		</s:Scroller>
+	</s:VGroup>
+	
+
+</s:BorderContainer>

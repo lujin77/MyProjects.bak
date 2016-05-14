@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:utilservice="services.utilservice.*"
+		 width="548" height="396" fontSize="14" title="编辑短信">
+	
+	<fx:Script>
+		<![CDATA[
+			import entity.AuthenticationInfo;
+			import entity.User;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			private var ItemID:String;
+			private var SmsType:String;
+			
+			public function init(id:String, type:String, content:String, tag:String):void {
+				ItemID = id;
+				SmsType = type;
+				txiContent.text = content;
+				txiTag.text = tag;
+				
+				//获取分组id信息
+				var condition:String = " Category='常用短信类型' "
+				GetStrListResult.token = utilService.GetStrList("URP_DIC_Content", condition, "Name", AuthenticationInfo.token);
+				utilService.addEventListener(ResultEvent.RESULT,cbxType_handler);
+				utilService.addEventListener(FaultEvent.FAULT,onFault)
+			}
+			
+			protected function cbxType_handler(event:ResultEvent):void
+			{
+				var arr:ArrayCollection = event.result as ArrayCollection;
+				cbxType.dataProvider = arr;
+				//选中combox
+				for (var i:int; i < arr.length ; ++i) {
+					if (arr[i] == SmsType) {
+						cbxType.selectedIndex = i;
+						return;
+					}
+				}	
+			}
+			
+			protected function validate():Boolean {
+				if (txiContent.text == "") {
+					Alert.show("短信内容不能为空!");
+					txiContent.setFocus();
+					return false;
+				}
+				
+				return true;
+			}
+			
+			protected function btnSubmit_clickHandler(event:MouseEvent):void
+			{
+				if (!validate()) return;
+				var updateSQL:String = " 短信类型='"+cbxType.selectedItem+"', 短信内容='"+txiContent.text+"', tag='"+txiTag.text+"'";
+				var condition:String = " id='"+ItemID+"' "
+				UpdateResult.token = utilService.Update(User.id, User.userid, "[QXT_platform].[dbo].[常用短信]", updateSQL, condition, AuthenticationInfo.token);
+				UpdateResult.addEventListener(ResultEvent.RESULT,submit_handler);
+				UpdateResult.addEventListener(FaultEvent.FAULT,onFault)
+				
+			}
+			
+			protected function btnClose_clickHandler(event:MouseEvent):void
+			{
+				PopUpManager.removePopUp(this);
+			}
+			
+			protected function submit_handler(event:ResultEvent):void
+			{
+				var result:String = event.result as String;
+				Alert.show(result);
+			}
+			
+			internal function onFault(evt:FaultEvent):void
+			{
+				Alert.show(evt.fault.faultDetail.toString());
+			}
+			
+			
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:CallResponder id="UpdateResult"/>
+		<utilservice:UtilService id="utilService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<s:CallResponder id="GetStrListResult"/>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<s:HGroup y="318" width="200" height="31" gap="20" horizontalCenter="-3"
+			  textAlign="left">
+		<s:Button id="btnSubmit" y="495" height="25" label="修改" buttonMode="true"
+				  chromeColor="#7DAC08" click="btnSubmit_clickHandler(event)"
+				  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+				  horizontalCenter="-100"/>
+		<s:Button id="btnClose" y="495" height="25" label="&lt;&lt;返回" buttonMode="true"
+				  chromeColor="#F28D21"
+				  click="btnClose_clickHandler(event)" color="#FFFFFF"
+				  cornerRadius="3" fontSize="14" fontWeight="bold" horizontalCenter="20"/>
+	</s:HGroup>
+	<s:Form top="10" width="500" height="293" horizontalCenter="0">
+		<s:FormItem label="短息类型:">
+			<s:DropDownList id="cbxType"/>
+		</s:FormItem>
+		<s:FormItem width="450" label="短信内容:">
+			<s:TextArea id="txiContent" width="350"/>
+		</s:FormItem>
+		<s:FormItem width="450" label="标签:">
+			<s:TextInput id="txiTag" width="350"/>
+		</s:FormItem>
+	</s:Form>
+</s:Panel>

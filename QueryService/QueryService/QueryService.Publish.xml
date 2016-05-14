@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<publishData>
+  <publishProfile publishUrl="localhost" deleteExistingFiles="True" ftpAnonymousLogin="False" ftpPassiveMode="True" msdeploySite="QueryWebService" msdeploySiteID="" msdeployRemoteSitePhysicalPath="" msdeployAllowUntrustedCertificate="False" msdeploySkipExtraFilesOnServer="True" msdeployMarkAsApp="False" profileName="配置文件1" publishMethod="MSDeploy" replaceMatchingFiles="False" userName="" savePWD="False" userPWD="" SelectedForPublish="True">
+    <file relUrl="bin/Newtonsoft.Json.dll" publishTime="04/23/2011 13:29:24" />
+    <file relUrl="QueryService.asmx" publishTime="09/11/2011 20:26:11" />
+    <file relUrl="bin/App_Data/config.xml" publishTime="09/08/2011 21:02:25" />
+    <file relUrl="bin/Newtonsoft.Json.xml" publishTime="04/23/2011 13:29:24" />
+    <file relUrl="Web.config" publishTime="09/14/2011 09:55:04" />
+    <file relUrl="bin/App_Data/key.data" publishTime="05/25/2010 11:22:02" />
+    <file relUrl="bin/QueryService.pdb" publishTime="09/14/2011 09:54:58" />
+    <file relUrl="App_Data/key.data" publishTime="05/25/2010 11:22:02" />
+    <file relUrl="App_Data/config.xml" publishTime="09/08/2011 21:02:25" />
+    <file relUrl="bin/Newtonsoft.Json.pdb" publishTime="04/23/2011 13:29:24" />
+    <file relUrl="bin/QueryService.dll" publishTime="09/14/2011 09:54:58" />
+  </publishProfile>
+</publishData>

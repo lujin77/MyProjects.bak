@@ -1,0 +1,60 @@
+<RCC>
+    <qresource prefix="/btn_main">
+        <file>images/btnList/btn_drjytj.png</file>
+        <file>images/btnList/btn_gmczk.png</file>
+        <file>images/btnList/btn_gmjp.png</file>
+        <file>images/btnList/btn_gmqb.png</file>
+        <file>images/btnList/btn_gszh.png</file>
+        <file>images/btnList/btn_jfrb.png</file>
+        <file>images/btnList/btn_jfyb.png</file>
+        <file>images/btnList/btn_kcxk.png</file>
+        <file>images/btnList/btn_skcx.png</file>
+        <file>images/btnList/btn_skjs.png</file>
+        <file>images/btnList/btn_tczf.png</file>
+        <file>images/btnList/btn_xgmm.png</file>
+        <file>images/btnList/btn_xkkk.png</file>
+        <file>images/btnList/btn_yhxxxg.png</file>
+        <file>images/btnList/btn_ywsl.png</file>
+        <file>images/btnList/btn_ywslcx.png</file>
+        <file>images/btnList/btn_zhcz.png</file>
+        <file>images/btnList/btn_zhye.png</file>
+        <file>images/btnList/btn_zxgg.png</file>
+        <file>images/btnList/btn_drjymx.png</file>
+        <file>images/btnList/btn_dbfjs.png</file>
+        <file>images/btnList/btn_kdjf.png</file>
+        <file>images/btnList/btn_sjjf.png</file>
+        <file>images/btnList/btn_ydjf.png</file>
+        <file>images/btnList/btn_ydxh.png</file>
+        <file>images/btnList/btn_sjxh.png</file>
+    </qresource>
+    <qresource prefix="/btn">
+        <file>images/cancle_btn.png</file>
+        <file>images/login_btn.png</file>
+        <file>images/mainframe/btn_cx.png</file>
+        <file>images/mainframe/btn_cz.png</file>
+        <file>images/mainframe/btn_qrjf.png</file>
+        <file>images/mainframe/btn_sx.png</file>
+        <file>images/print.png</file>
+        <file>images/mainframe/btn_qrtj.png</file>
+        <file>images/mainframe/btn_qrxg.png</file>
+        <file>images/mainframe/btn_qk.png</file>
+    </qresource>
+    <qresource prefix="/bg">
+        <file>images/bg/background.png</file>
+        <file>images/mainframe/navigator.png</file>
+        <file>images/mainframe/title_bar.png</file>
+        <file>images/bg/top.png</file>
+        <file>images/bg/loginBox.png</file>
+        <file>images/bg/transparent.png</file>
+        <file>images/bg/news_alert.png</file>
+        <file>images/bg/top2.png</file>
+    </qresource>
+    <qresource prefix="/border">
+        <file>images/bg/btnList.png</file>
+        <file>images/bg/btnList2.png</file>
+    </qresource>
+    <qresource prefix="/icon">
+        <file>images/lt.png</file>
+        <file>images/yd.png</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:utilservice="services.utilservice.*"
+				   width="100%" height="100%" backgroundColor="#F1F4F8" borderVisible="true"
+				   borderWeight="1" cornerRadius="10" dropShadowVisible="true" creationComplete="init()">
+	<fx:Script>
+		<![CDATA[
+			import entity.AuthenticationInfo;
+			import entity.User;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			public function init():void {
+				reset();
+				
+				//获取分组id信息
+				var condition:String = " Category='常用短信类型' "
+				GetStrListResult.token = utilService.GetStrList("URP_DIC_Content", condition, "Name", AuthenticationInfo.token);
+				utilService.addEventListener(ResultEvent.RESULT,cbxType_handler);
+				utilService.addEventListener(FaultEvent.FAULT,onFault)
+			}
+			
+			protected function cbxType_handler(event:ResultEvent):void
+			{
+				var arr:ArrayCollection = event.result as ArrayCollection;
+				cbxType.dataProvider = arr;
+				cbxType.selectedIndex = 0;
+			}
+			
+			protected function reset():void {
+				txiContent.text = "";
+				txiTag.text = "";
+			}
+			
+			protected function validate():Boolean {
+				if (txiContent.text == "") {
+					Alert.show("短信内容不能为空!");
+					txiContent.setFocus();
+					return false;
+				}
+				
+				return true;
+			}
+			
+			protected function getValuse():String {
+				var sql:String = "newid()";
+				sql += ",'" + User.id+"' ";
+				sql += ",'" + cbxType.selectedItem+"' ";
+				
+				if (txiContent.text == "") {
+					sql += ",NULL"
+				} else {
+					sql += ",'" + txiContent.text+"' ";
+				}
+				
+				if (txiTag.text == "") {
+					sql += ",NULL"
+				} else {
+					sql += ",'" + txiTag.text+"' ";
+				}
+						
+				return sql;
+				
+			}
+			
+			protected function btnSubmit_clickHandler(event:MouseEvent):void
+			{
+				if (!validate()) return;
+				var values:String = getValuse();
+				//Alert.show(values)
+				InsertResult.token = utilService.Insert(User.id, User.userid, "常用短信", values, AuthenticationInfo.token);
+				InsertResult.addEventListener(ResultEvent.RESULT,submit_handler);
+				InsertResult.addEventListener(FaultEvent.FAULT,onFault)
+				
+			}
+			
+			internal function submit_handler(evt:ResultEvent):void
+			{
+				var result:String = evt.result as String;
+				if (result == "插入成功！") {
+					Alert.show("添加常用短信成功！")
+					reset();
+				} else {
+					Alert.show("添加常用短信失败！\n"+result);
+				}
+				
+			}
+			
+			internal function onFault(evt:FaultEvent):void
+			{
+				Alert.show(evt.fault.faultDetail.toString());
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:CallResponder id="InsertResult"/>
+		<utilservice:UtilService id="utilService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<s:CallResponder id="GetStrListResult"/>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<s:VGroup x="0" y="0" width="100%" height="100%">
+		<s:BorderContainer top="0" width="100%" height="30" backgroundColor="#6A94BA"
+						   borderVisible="false" borderWeight="0" cornerRadius="10"
+						   horizontalCenter="0">
+			<s:BorderContainer right="-1" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			<s:BorderContainer left="0" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			
+			<s:Image x="24" y="3" source="img/bg/tab.gif"/>
+			<s:Label left="53" top="10" fontFamily="中易黑体" fontSize="14" fontWeight="bold" text="添加常用信息"/>
+		</s:BorderContainer>
+		<s:Scroller width="100%" height="100%">
+			<s:Group x="268" y="316" width="100%" height="100%">
+				<s:Form top="10" width="500" height="293" horizontalCenter="0">
+					<s:FormItem label="短息类型:">
+						<s:DropDownList id="cbxType"/>
+					</s:FormItem>
+					<s:FormItem width="450" label="短信内容:">
+						<s:TextArea id="txiContent" width="350"/>
+					</s:FormItem>
+					<s:FormItem width="450" label="标签:">
+						<s:TextInput id="txiTag" width="350"/>
+					</s:FormItem>
+				</s:Form>
+				<s:HGroup y="310" width="200" height="50" gap="20" horizontalCenter="0">
+					<s:Button id="btnSubmit" y="495" height="25" label="确认添加" buttonMode="true"
+							  chromeColor="#7DAC08" click="btnSubmit_clickHandler(event)"
+							  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+							  horizontalCenter="-100"/>
+					<s:Button y="495" height="25" label="&lt;&lt;返回" buttonMode="true"
+							  chromeColor="#F28D21"
+							  click="dispatchEvent(new Event('Back2HomeEvent', true, false))"
+							  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+							  horizontalCenter="20"/>
+				</s:HGroup>
+			</s:Group>
+			
+		</s:Scroller>
+	</s:VGroup>
+	
+	
+</s:BorderContainer>

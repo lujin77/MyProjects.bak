@@ -1,0 +1,705 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:utilservice="services.utilservice.*"
+				   xmlns:smsservice="services.smsservice.*"
+				   width="100%" height="100%" backgroundColor="#F1F4F8" borderVisible="true"
+				   borderWeight="1" cornerRadius="10" creationComplete="init()"
+				   dropShadowVisible="true">
+	<fx:Script>
+		<![CDATA[	
+			import entity.AuthenticationInfo;
+			import entity.Config;
+			import entity.User;
+			
+			import flash.utils.Dictionary;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
+			
+			import spark.events.IndexChangeEvent;
+			import spark.events.TextOperationEvent;
+			
+			
+			private var file:FileReference = new FileReference();
+			private var parentPath:String = null;
+			private var fileName:String=null;
+
+			public function init():void
+			{
+				txtSmsNum.text = User.sms.toString() + "条";
+				txiContent.text = "【" + User.sms_sign + "】";
+				txiWordCount.text = txiContent.text.length.toString();
+				//var wc:int = txiContent.text.length;
+				//var sms_num:int = Math.ceil(wc/Config.smsLength);
+				var sms_num:int = calcSmsNum(txiContent.text);
+				if (sms_num == 0) {
+					Alert.show("短信超过最大长度350！");
+					return;
+				}
+				txiSmsCount.text = sms_num.toString();	
+				txiNoList.text = "";
+				txiNoNum.text = "0";
+				//utilService.GetNoGroups.send();
+			}
+			
+			protected function txiContent_changeHandler(event:TextOperationEvent):void
+			{
+				var wc:int = txiContent.text.length;
+				txiWordCount.text = wc.toString();
+				//var sms_num:int = Math.ceil(wc/Config.smsLength);
+				var sms_num:int = calcSmsNum(txiContent.text);
+				if (sms_num == 0) {
+					Alert.show("短信超过最大长度350！");
+					return;
+				}
+				txiSmsCount.text = sms_num.toString();
+			}
+			
+			internal function onFault(evt:FaultEvent):void
+			{
+				Alert.show(evt.fault.faultDetail.toString());
+			}
+			
+			internal function onGetNoGroupsResult(evt:ResultEvent):void
+			{
+				//var arr:ArrayCollection = evt.result as ArrayCollection;
+				//Alert.show();
+				cbxGroups.dataProvider = evt.result as ArrayCollection;
+			}
+			
+			protected function rdoNoGroup_clickHandler(event:MouseEvent):void
+			{
+				cbxGroups.dataProvider = null;
+				cbxGroups.selectedIndex = -1;
+				//utilService.GetNoGroups(User.id, "群发簿");
+				GetNoGroupsResult.token = utilService.GetNoGroups(User.id, "群发簿");
+				GetNoGroupsResult.addEventListener(ResultEvent.RESULT,onGetNoGroupsResult);
+				
+			}
+			
+			protected function rdoContractList_clickHandler(event:MouseEvent):void
+			{
+				cbxGroups.dataProvider = null;
+				cbxGroups.selectedIndex = -1;
+				//utilService.GetNoGroups(User.id, "通信录");
+				GetNoGroupsResult.token = utilService.GetNoGroups(User.id, "群发簿");
+				GetNoGroupsResult.addEventListener(ResultEvent.RESULT,onGetNoGroupsResult);
+			}
+			
+			protected function btnFilter_clickHandler(event:MouseEvent):void
+			{
+				if (txiNoList.text == "") {
+					Alert.show("请先输入号码!")
+					return
+				}
+					
+				var same:int = 0;
+				same = filterSameTels();
+				if (same > 0) {
+					Alert.show("除去了"+String(same)+"个重复号码！");
+				} else {
+					Alert.show("没有重复号码！");
+				}
+				
+			}
+			
+			//号码去重
+			protected function filterSameTels():int {
+				var same:int = 0;
+				var arrFilter:Array = new Array();
+				var arrTels:Array = txiNoList.text.split(",");
+				var hash:Dictionary = new Dictionary();
+				for (var i:int = 0; i < arrTels.length; ++ i) 
+				{
+					if (hash[arrTels[i]] == true) {
+						same = same + 1;
+						continue;
+					} else {
+						arrFilter.push(arrTels[i]);
+						hash[arrTels[i]] = true;
+						
+					}
+					
+				}
+				
+				var isFirst:Boolean = false;
+				var str:String = ""
+				for (var i:int = 0; i < arrFilter.length; ++ i)  
+				{
+					if (!isFirst) {
+						str += arrFilter[i];
+						isFirst = true;
+					} else {
+						str += ","+arrFilter[i];
+					}
+				}
+				
+				txiNoList.text = str;
+				
+				return same;
+			}
+			
+			//号码排错
+			protected function delErrTesl():int {
+				var errNum:int = 0;
+				var arrTels:Array = txiNoList.text.split(",");
+				var isFirst:Boolean = false;
+				var str:String = "";
+				var tel:String = "";
+				for (var i:int = 0; i < arrTels.length; ++ i) 
+				{
+					tel = StringUtil.trim(arrTels[i].toString());
+					if (tel.length != 11) {
+						errNum = errNum + 1;
+						continue;
+					}
+					
+					if (!isFirst) {
+						str += arrTels[i];
+						isFirst = true;
+					} else {
+						str += ","+arrTels[i];
+					}
+					
+				}
+				
+				txiNoList.text = str;
+				
+				return errNum;
+			}
+			
+			
+			
+			protected function btnOpenFile_clickHandler(event:MouseEvent):void
+			{
+				var filter:FileFilter=new FileFilter("文本（*.txt）", "*.txt");
+				file.addEventListener(Event.SELECT,selectedFile);
+				file.browse([filter]);
+			}
+			
+			/**
+			 * 选择文件
+			 * */
+			protected function selectedFile(e:Event):void{
+				/*
+				if(e.target.size > 524288){
+					Alert.show("要读取的文件大于512KB，请重新选择文件");
+					return;
+				}
+				*/
+				fileName = e.target.name;
+				txiFile.text = fileName;
+				
+			}
+			
+			protected function btnExtract_clickHandler(event:MouseEvent):void
+			{
+				file.load();
+				file.addEventListener(Event.COMPLETE,getData);
+			}
+			
+			/**
+			 * 获取文件
+			 * */
+			protected function getData(e:Event):void{
+				var dataArr:ByteArray = file.data;
+				var dataStr:String;
+				dataArr.position = 0;
+				dataStr = dataArr.readUTFBytes(dataArr.length);
+				//拼凑成文本
+				var arrTels:Array = dataStr.split("\n");
+				var isFirst:Boolean = false;
+				var str:String = "";
+				var tel:String = "";
+				var errNum:int = 0;
+				//var errTels:String = "";
+				for (var i:int = 0; i < arrTels.length; ++ i)  
+				{
+					tel = StringUtil.trim(arrTels[i].toString());
+					if (tel.length != 11) {
+						errNum = errNum + 1;
+						//errTels += tel + ","
+						continue;
+					}
+					
+					if (!isFirst) {
+						str += StringUtil.trim(arrTels[i].toString());
+						isFirst = true;
+					} else {
+						str += ","+StringUtil.trim(arrTels[i].toString());
+					}
+				}
+				txiNoList.text = str;
+				
+				if (errNum > 0) {
+					var result:String = "有" + errNum.toString() + "个号码有误！\n长度不足11位，已去除";
+					Alert.show(result, "警告"); 
+				}
+			}
+
+			
+			protected function btnSubmit_clickHandler(event:MouseEvent):void
+			{
+				if (txiContent.text == "") {
+					Alert.show("短信内容不能为空！", "错误");
+					return;
+				}
+				
+				if (txiNoList.text == "") {
+					Alert.show("电话号码不能为空！", "错误");
+					return;
+				}
+				
+				var time:String = "";
+				if (cbxTiming.selected)
+				{
+					//Alert.show(dfdDate.selectedDate.toDateString())
+					if (dfdDate.text == "") {
+						Alert.show("请指定日期")
+						return;
+					}
+					if (cbxHour.selectedItem.label == "") {
+						Alert.show("请指定时")
+						return;
+					}
+					if (cbxMinute.selectedItem.label == "") {
+						Alert.show("请指定分")
+						return;
+					}
+					time = dfdDate.text + " " + cbxHour.selectedItem.label + ":" + cbxMinute.selectedItem.label + ":00";
+					//Alert.show(time)
+				}
+				
+				if (cbxRecordList.selected && txiListName.text == "")
+				{
+					Alert.show("请输入群发簿名称！");
+					return;
+				}
+				
+				
+				//排错
+				var sameNum:int = filterSameTels();
+				var errNum:int = delErrTesl();
+				
+				if (sameNum > 0 || errNum > 0) {
+					var notice:String;
+					notice = "排除了：" + sameNum + "个重复号码，" + errNum + "个错误号码！";
+					Alert.show(notice, "提示");
+					return;
+				}			
+					
+				
+				Alert.show("确定要提交吗？","提示",Alert.YES|Alert.NO,null,function(event:CloseEvent):void {
+					if(event.detail == Alert.YES) {
+						SendSMSResult.token = smsService.SendSMS(User.id, User.userid, txiContent.text, int(txiSmsCount.text)
+										, txiNoList.text.split(",").length, txiNoList.text, time, "", AuthenticationInfo.token);
+						SendSMSResult.addEventListener(ResultEvent.RESULT,submit_handler);
+						SendSMSResult.addEventListener(FaultEvent.FAULT,onFault);
+						
+					} else if(event.detail==Alert.NO) {
+					
+					}
+	
+					return;
+				});
+			}
+			
+			protected function submit_handler(event:ResultEvent):void
+			{
+				var result:String = event.result as String;
+				if (result == "发送成功！") 
+				{
+					//更新账户信息
+					//User.sms = User.sms - (int(txiSmsCount.text) * txiNoList.text.split(",").length);
+					//txtSmsNum.text = User.sms.toString() + "条";
+					//Alert.show(User.sms.toString());
+					this.dispatchEvent(new Event("UpdateUserMoney"));
+					//向外发消息
+					
+					if (cbxRecordList.selected)
+					{
+						if (txiListName.text == "") 
+						{
+							Alert.show("请输入群发簿名称！");
+							return;
+						}
+						SaveGroupResult.token = smsService.SaveGroup(User.id, txiListName.text, txiNoList.text, AuthenticationInfo.token);	
+						//SaveGroupResult.addEventListener(ResultEvent.RESULT,submit_handler);
+						SaveGroupResult.addEventListener(FaultEvent.FAULT,onFault);
+					}
+				}
+				Alert.show(result);
+			}
+			
+			protected function txiListName_focusOutHandler(event:FocusEvent):void
+			{
+				if (txiListName.text != "") {
+					var condition:String = "用户id='" + User.id + "' and 类型='群发簿' and 组名称='" + txiListName.text + "'"
+					CheckExistResult.token = utilService.CheckExist("号码群组", condition);
+					CheckExistResult.addEventListener(ResultEvent.RESULT,checkExist_handler);
+					CheckExistResult.addEventListener(FaultEvent.FAULT,onFault);
+				}
+			}
+			
+			
+			protected function checkExist_handler(event:ResultEvent):void
+			{
+				var result:Boolean = event.result as Boolean;
+				if (result) {
+					Alert.show("该号码薄名称已存在！");
+					txiListName.getFocus();
+				}
+			}
+			
+			
+			protected function cbxGroups_changeHandler(event:IndexChangeEvent):void
+			{
+				var condition:String;
+				if (rdoNoGroup.selected) {
+					condition = "[分组id]='" + cbxGroups.selectedItem.data + "'";
+					GetStrListResult.token = utilService.GetStrList("群发簿", condition, "号码", AuthenticationInfo.token);
+					
+				} else if (rdoContractList) {
+					condition = "[组id]='" + cbxGroups.selectedItem.data + "'";
+					GetStrListResult.token = utilService.GetStrList("View_通信录分组_录", condition, "手机号", AuthenticationInfo.token);
+				}
+				GetStrListResult.addEventListener(ResultEvent.RESULT,getGroupTels_handler);
+				GetStrListResult.addEventListener(FaultEvent.FAULT,onFault);
+				//Alert.show(condition);
+			}
+			
+			protected function getGroupTels_handler(evt:ResultEvent):void
+			{
+				var arr:ArrayCollection = evt.result as ArrayCollection;
+				//Alert.show(arr.length.toString());
+				var isFirst:Boolean = false;
+				var str:String = "";
+				var tel:String = "";
+				var count:int = 0;
+				//var errTels:String = "";
+				for (var i:int = 0; i < arr.length; ++ i)  
+				{
+					tel = StringUtil.trim(arr[i].toString());
+//					if (tel.length != 11) {
+//						//errTels += tel + ","
+//						continue;
+//					}
+					
+					if (!isFirst) {
+						str += StringUtil.trim(arr[i].toString());
+						isFirst = true;
+					} else {
+						str += ","+StringUtil.trim(arr[i].toString());
+					}
+					++count;
+				}
+				txiNoList.text = str;
+				
+				txiNoNum.text = count.toString();
+			}
+			
+			public function change2send(content:String):void
+			{
+				init();
+				txiContent.text = content;
+				var wc:int = txiContent.text.length;
+				txiWordCount.text = wc.toString();
+				//var sms_num:int = Math.ceil(wc/Config.smsLength);
+				var sms_num:int = calcSmsNum(txiContent.text);
+				if (sms_num == 0) {
+					Alert.show("短信超过最大长度350！");
+					return;
+				}
+				txiSmsCount.text = sms_num.toString();
+				txiNoList.text = "";
+			}
+
+			public function change2sendByList(tels:String):void
+			{
+				init();
+				txiNoList.text = tels;
+			}
+			
+			protected function txiNoList_focusOutHandler(event:FocusEvent):void
+			{
+//				if (txiNoList.text != "" && txiNoList.text.search("\n")>0) {
+//					var old_str:String = txiNoList.text;
+//					var new_str:String = old_str.replace("\n",",");
+//					while (old_str != new_str) {
+//						old_str = txiNoList.text;
+//						new_str = old_str.replace("\n",",");
+//					}
+//					txiNoList.text = new_str;
+//				}
+				
+				while (txiNoList.text != "" && txiNoList.text.search("\n")>0) {
+					txiNoList.text = txiNoList.text.replace("\n",",");
+				}
+				
+				if (txiNoList.text == "") {
+					txiNoNum.text = "0";
+				} else {
+					var arr:Array = txiNoList.text.split(",");
+					var count:int = 0;
+					for (var i:int = 0; i < arr.length; ++i) {
+						if (arr[i] != "") {
+							++count;
+						}
+					}
+					txiNoNum.text = count.toString();
+				}
+			}
+			
+			protected function txiNoList_changeHandler(event:TextOperationEvent):void
+			{
+				if (txiNoList.text == "") {
+					txiNoNum.text = "0";
+				} else {
+					var arr:Array = txiNoList.text.split(",");
+					var count:int = 0;
+					for (var i:int = 0; i < arr.length; ++i) {
+						if (arr[i] != "") {
+							++count;
+						}
+					}
+					txiNoNum.text = count.toString();
+				}
+			}
+			
+			protected function calcSmsNum(message:String):int
+			{
+				if (message.length <= 70) 
+				{
+					return 1;
+				}
+				else if (message.length > 70 && message.length <= 130) 
+				{
+					return 2;
+				}
+				else if (message.length > 130 && message.length <= 190)
+				{
+					return 3;
+				}
+				else if (message.length > 190 && message.length <= 240)
+				{
+					return 4;
+				}
+				else if (message.length > 240 && message.length <= 290)
+				{
+					return 5;
+				}
+				else if (message.length > 290 && message.length <= 320)
+				{
+					return 6;
+				}
+				else if (message.length > 320 && message.length <= 350)
+				{
+					return 7;
+				}
+				else
+				{
+					return 0;
+				}
+			}
+
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<!--
+		<s:WebService id="utilService" showBusyCursor="true"  wsdl="http://localhost:8003/UtilService.asmx?WSDL">
+			<s:operation name="GetNoGroups" resultFormat="object" result="onGetNoGroupsResult(event)" fault="onFault(event)">
+				<s:request>
+					<user_id>{User.id}</user_id>
+					<type>群发簿</type>
+				</s:request>
+			</s:operation>
+		</s:WebService>
+		-->
+		<s:CallResponder id="CheckExistResult"/>
+		<utilservice:UtilService id="utilService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<s:CallResponder id="GetStrListResult"/>
+		<s:CallResponder id="SendSMSResult"/>
+		<smsservice:SmsService id="smsService"
+							   fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+							   showBusyCursor="true"/>
+		<s:CallResponder id="SaveGroupResult"/>
+		<s:CallResponder id="GetNoGroupsResult"/>
+	</fx:Declarations>
+	
+	
+	<s:VGroup x="0" y="0" width="100%" height="100%">
+		<s:BorderContainer top="0" width="100%" height="30" backgroundColor="#6A94BA"
+						   borderVisible="false" borderWeight="0" cornerRadius="10"
+						   horizontalCenter="0">
+			<s:BorderContainer right="-1" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			<s:BorderContainer left="0" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			
+			<s:Image x="24" y="3" source="img/bg/tab.gif"/>
+			<s:Label left="65" top="10" fontFamily="中易黑体" fontSize="14" fontWeight="bold" text="发送短信"/>
+		</s:BorderContainer>
+		<s:Scroller width="100%" height="100%">
+			<s:Group x="117" y="193" width="100%" height="100%">
+				<s:VGroup top="10" width="686" height="700" autoLayout="true" fontSize="14" gap="0"
+						  horizontalCenter="0">
+					<s:FormItem label="当前余额:">
+						<s:Label id="txtSmsNum" color="#FF0000" text="XX条"/>
+						
+					</s:FormItem>
+					<s:FormItem width="455" label="发送内容:">
+						<s:TextArea id="txiContent" width="500" height="120"
+									change="txiContent_changeHandler(event)"/>
+					</s:FormItem>
+					<s:HGroup width="200" height="20">
+						<s:Label text="                    已输入:"/>
+						<s:Label id="txiWordCount" color="#FF0000" text="10"/>
+						<s:Label text="字，将分作"/>
+						<s:Label id="txiSmsCount" color="#FF0000" text="1"/>
+						<s:Label text="短信发送，最多350个字，每70个字按一条收费。"/>
+					</s:HGroup>
+					<s:FormItem width="455" label="发送号码:">
+						<s:TextArea id="txiNoList" width="500" height="150"
+									change="txiNoList_changeHandler(event)"
+									focusOut="txiNoList_focusOutHandler(event)"/>
+					</s:FormItem>
+					<s:HGroup width="200" height="20">
+						<s:Label text="                    每行一个号码，多个号码自动以英文逗号分隔，不要超过20万号码。当前共"/>
+						<s:Label id="txiNoNum" color="#FF0000" text="xx"/>
+						<s:Label text="个号码"/>
+					</s:HGroup>
+					<s:FormItem width="577" label="导入号码:">
+						<s:HGroup width="416" height="30">
+							<s:TextInput id="txiFile" enabled="false"/>
+							<s:Button id="btnOpenFile" width="60" label="浏览..."
+									  click="btnOpenFile_clickHandler(event)" cornerRadius="3"/>
+							<s:Button id="btnExtract" width="50" label="提取"
+									  click="btnExtract_clickHandler(event)" cornerRadius="3"/>
+							<s:Button id="btnClear" width="50" label="清空"
+									  click="txiNoList.text = ''" cornerRadius="3"/>
+							<s:Button id="btnFilter" label="重号过滤"
+									  click="btnFilter_clickHandler(event)" cornerRadius="3"/>
+						</s:HGroup>
+					</s:FormItem>
+					<s:FormItem width="600" label="号码方式:">
+						<s:HGroup width="510" height="30">
+							<s:RadioButton id="rdoNumberList" label="号码列表发送" groupName="NoType"
+										   selected="true"/>
+							<s:RadioButton id="rdoNoGroup" label="号码群发簿发送"
+										   click="rdoNoGroup_clickHandler(event)" groupName="NoType"/>
+							<s:RadioButton id="rdoContractList" label="通讯录联系组"
+										   click="rdoContractList_clickHandler(event)"
+										   groupName="NoType"/>
+							<s:DropDownList id="cbxGroups" width="170"
+											change="cbxGroups_changeHandler(event)" enabled="true"
+											labelField="label"/>
+						</s:HGroup>
+					</s:FormItem>
+					<s:FormItem width="600" label="号码薄名:">
+						<s:HGroup width="490" height="30">
+							<s:CheckBox id="cbxRecordList" label="存入群发簿以便下次群发，并取名"/>
+							<s:TextInput id="txiListName"
+										 focusOut="txiListName_focusOutHandler(event)"/>
+						</s:HGroup>
+					</s:FormItem>
+					<s:FormItem width="600" label="定时发送:">
+						<s:HGroup width="490" height="30">
+							<s:CheckBox id="cbxTiming" label="定时发送"/>
+							<mx:DateField id="dfdDate" yearNavigationEnabled="true"    
+										  dayNames="['日','一','二','三','四','五','六']" 
+										  monthNames="['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月']" 
+										  fontSize="12" formatString="YYYY-MM-DD"/>
+							<s:ComboBox id="cbxHour" width="50">
+								<s:ArrayList>
+									<fx:Object label="00"/>
+									<fx:Object label="01"/>
+									<fx:Object label="02"/>
+									<fx:Object label="03"/>
+									<fx:Object label="04"/>
+									<fx:Object label="05"/>
+									<fx:Object label="06"/>
+									<fx:Object label="07"/>
+									<fx:Object label="08"/>
+									<fx:Object label="09"/>
+									<fx:Object label="10"/>
+									<fx:Object label="11"/>
+									<fx:Object label="12"/>
+									<fx:Object label="13"/>
+									<fx:Object label="14"/>
+									<fx:Object label="15"/>
+									<fx:Object label="16"/>
+									<fx:Object label="17"/>
+									<fx:Object label="18"/>
+									<fx:Object label="19"/>
+									<fx:Object label="20"/>
+									<fx:Object label="21"/>
+									<fx:Object label="22"/>
+									<fx:Object label="23"/>
+								</s:ArrayList>
+							</s:ComboBox>
+							<s:Label height="25" text="时" verticalAlign="middle"/>
+							<s:ComboBox id="cbxMinute" width="50">
+								<s:ArrayList>
+									<fx:Object label="00"/>
+									<fx:Object label="05"/>
+									<fx:Object label="10"/>
+									<fx:Object label="15"/>
+									<fx:Object label="20"/>
+									<fx:Object label="25"/>
+									<fx:Object label="30"/>
+									<fx:Object label="35"/>
+									<fx:Object label="40"/>
+									<fx:Object label="45"/>
+									<fx:Object label="50"/>
+								</s:ArrayList>
+							</s:ComboBox>
+							<s:Label height="25" text="分" verticalAlign="middle"/>
+						</s:HGroup>
+					</s:FormItem>
+					<s:Group y="490" width="596" height="30" horizontalCenter="-45">
+						<s:Button id="btnSubmit" height="25" label="确认发送" buttonMode="true"
+								  chromeColor="#7DAC08" click="btnSubmit_clickHandler(event)"
+								  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+								  horizontalCenter="-100" verticalCenter="0"/>
+						<s:Button id="btnReturn" height="25" label="&lt;&lt;返回" buttonMode="true"
+								  chromeColor="#F28D21"
+								  click="dispatchEvent(new Event('Back2HomeEvent', true, false))"
+								  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+								  horizontalCenter="20" verticalCenter="0"/>
+					</s:Group>
+				</s:VGroup>
+				<!--
+				<s:Label y="495" color="#FFFFFF" fontFamily="中易黑体" fontSize="14" fontWeight="bold"
+						 horizontalCenter="-175" text="确认发送" buttonMode="true"/>
+				<s:Button id="btnSubmit" bottom="5" height="25" label="确认发送" buttonMode="true"
+						  chromeColor="#7DAC08" click="btnSubmit_clickHandler(event)"
+						  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+						  horizontalCenter="-100"/>
+				<s:Button id="btnReturn" bottom="5" height="25" label="&lt;&lt;返回"
+						  buttonMode="true" chromeColor="#F28D21"
+						  click="dispatchEvent(new Event('Back2HomeEvent', true, false))"
+						  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+						  horizontalCenter="20"/>
+				-->
+			</s:Group>
+		</s:Scroller>
+			
+	</s:VGroup>
+	
+	
+</s:BorderContainer>

@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:smsservice="services.smsservice.*"
+				   width="100%" height="100%" backgroundColor="#F1F4F8" borderVisible="true"
+				   borderWeight="1" cornerRadius="10" dropShadowVisible="true"  creationComplete="init()">
+	
+	<fx:Script>
+		<![CDATA[
+			import entity.AuthenticationInfo;
+			import entity.User;
+			import entity.ServiceURL;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
+			
+			import spark.events.IndexChangeEvent;
+			import spark.events.TextOperationEvent;
+			import mx.managers.CursorManager;
+			
+			private var file:FileReference = new FileReference();
+			private var fileName:String=null;
+			
+			public function init():void
+			{
+				txtMoney.text = User.sms.toString() + "条";
+				txtFile.text = "";
+				agdTable.dataProvider = null;
+			}
+			
+			protected function btnDownload_clickHandler(event:MouseEvent):void
+			{
+				//navigateToURL(new URLRequest(ServiceURL.url + "/File/SendSmsUpload.xls"));
+				downLoadFiles(ServiceURL.url + "/File/SendSmsUpload.xls")
+			}
+			
+			protected function btnUpload_clickHandler(event:MouseEvent):void
+			{
+				var filter:FileFilter=new FileFilter("Excel（*.xls, *.xlsx）", "*.xls; *.xlsx");
+				file.addEventListener(Event.SELECT,selectedFile);
+				file.browse([filter]);
+			}
+			
+			protected function selectedFile(e:Event):void{
+				fileName = e.target.name;
+				txtFile.text = fileName;
+				file.load();
+				file.addEventListener(Event.COMPLETE,upload_file);
+			}
+			
+			/**
+			 * 获取文件
+			 * */
+			protected function upload_file(e:Event):void {
+				var dataArr:ByteArray = file.data;
+				var arr:Array = fileName.split(".");
+				var GUID_fileName:String = User.id + "." + arr[arr.length-1];
+				UploadExcelResult.token = smsService.UploadExcel(GUID_fileName, dataArr, AuthenticationInfo.token);
+				UploadExcelResult.addEventListener(ResultEvent.RESULT,upload_handler);
+				UploadExcelResult.addEventListener(FaultEvent.FAULT,onFault);
+			}
+			
+			internal function onFault(evt:FaultEvent):void
+			{
+				Alert.show(evt.fault.faultDetail.toString());
+			}
+			
+			protected function upload_handler(event:ResultEvent):void
+			{
+				//Alert.show(event.result as String);
+				var result:XML = XML(event.result);
+				agdTable.dataProvider = null;
+				agdTable.dataProvider = result.Sheet1_x0024_;;	
+
+			}
+			
+			
+			//返回行号
+			private function lfRowNum(oItem:Object,iCol:int):String    
+			{   
+				var iIndex:int = agdTable.dataProvider.getItemIndex(oItem) + 1; 
+				return String(iIndex);     
+			} 
+			
+			
+			protected function btnSubmit_clickHandler(event:MouseEvent):void
+			{
+				Alert.show("确定要提交吗？","提示",Alert.YES|Alert.NO,null,function(event:CloseEvent):void {
+					if(event.detail == Alert.YES) {
+						var arr:Array = fileName.split(".");
+						var GUID_fileName:String = User.id + "." + arr[arr.length-1];
+						SubmitSMSResult.token = smsService.SubmitSMS(GUID_fileName, User.id, User.userid, AuthenticationInfo.token);
+						SubmitSMSResult.addEventListener(ResultEvent.RESULT,submit_handler);
+						SubmitSMSResult.addEventListener(FaultEvent.FAULT,onFault);
+						
+					} else if(event.detail==Alert.NO) {
+						
+					}
+					
+					return;
+				});
+			}
+			
+			protected function submit_handler(event:ResultEvent):void
+			{
+				var result:String = event.result as String;
+				if (result.indexOf("共提交") > -1) {
+					var start:int = result.indexOf("共折合：") + "共折合：".length;
+					var end:int = result.indexOf("条", start);
+					var money:int = int(result.substring(start, end));
+					//更新账户信息
+					User.sms = User.sms - money;
+					txtMoney.text = User.sms.toString() + "条";
+					//Alert.show(User.sms.toString());
+					this.dispatchEvent(new Event("UpdateUserMoney"));
+				}
+				Alert.show(result);
+			}
+			
+			var downloadURL:URLRequest;
+			var DownLoadfile:FileReference; //这是要主要的地方
+			//http://XX.XX.XX.XX:8080/upload/main.zip
+			private function downLoadFiles(urlAdd:String):void
+			{
+				CursorManager.setBusyCursor();
+				downloadURL = new URLRequest(urlAdd);
+				DownLoadfile = new FileReference();
+				configureListeners(DownLoadfile);
+				DownLoadfile.download(downloadURL);
+				
+			}
+			private function configureListeners(dispatcher:IEventDispatcher):void {
+				dispatcher.addEventListener(Event.COMPLETE, completeHandler);
+				CursorManager.removeBusyCursor();
+				
+			}
+			
+			private function completeHandler(event:Event):void {
+				mx.controls.Alert.show("文件下载成功");
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:CallResponder id="UploadExcelResult"/>
+		<smsservice:SmsService id="smsService"
+							   fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+							   showBusyCursor="true"/>
+		<s:CallResponder id="SubmitSMSResult"/>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<s:VGroup x="0" y="0" width="100%" height="100%">
+		<s:BorderContainer top="0" width="100%" height="30" backgroundColor="#6A94BA"
+						   borderVisible="false" borderWeight="0" cornerRadius="10"
+						   horizontalCenter="0">
+			<s:BorderContainer right="-1" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			<s:BorderContainer left="0" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			
+			<s:Image x="24" y="3" source="img/bg/tab.gif"/>
+			<s:Label left="47" top="10" fontFamily="中易黑体" fontSize="14" fontWeight="bold" text="逐条发送短信"/>
+		</s:BorderContainer>
+		<s:Scroller width="100%" height="100%">
+			<s:Group width="100%" height="100%">
+				<s:BorderContainer top="10" width="768" height="500" backgroundAlpha="0.0"
+								   borderAlpha="0.0" borderVisible="false" dropShadowVisible="false"
+								   horizontalCenter="0">
+					<s:FormItem x="79" y="15" label="当前余额:" fontSize="14">
+						<s:Label id="txtMoney" color="#FF0000" text="XX条"/>
+						
+					</s:FormItem>
+					<s:Label x="94" y="62" color="#585858" fontSize="14"
+							 text="您可以将事先编辑好的『号码、内容』文件上传，系统会自动批量逐条发送！"/>
+					<s:Label x="94" y="115" color="#585858" fontSize="14"
+							 text="（请在模板中填写需要发送的详细信息）"/>
+					
+					<s:Image x="94" y="89" source="img/navigator/pic8.gif"/>
+					<mx:LinkButton id="btnDownload" x="105" y="85" label="下载CSV模板文件，不要超过5万条记录"
+								   click="btnDownload_clickHandler(event)" color="#1800FF"
+								   fontSize="14"/>
+					<s:Label x="31" y="91" fontSize="14" text="第一步："/>
+					<s:Label x="31" y="140" fontSize="14" text="第二步："/>
+					<s:Button id="btnUpload" x="95" y="137" label="上传文件"
+							  click="btnUpload_clickHandler(event)" fontSize="14"/>
+					<mx:DataGrid id="agdTable" y="176" left="20" right="20" height="269">
+						<mx:columns>
+							<!--<mx:DataGridColumn headerText="序号" labelFunction="lfRowNum" width="50"></mx:DataGridColumn>-->
+								<!--<mx:DataGridColumn headerText="序号" labelFunction="lfRowNum"></mx:DataGridColumn>-->
+							<mx:DataGridColumn dataField="号码_xFF08_必填_xFF09_" headerText="号码"></mx:DataGridColumn>
+							<mx:DataGridColumn dataField="姓名" headerText="姓名"></mx:DataGridColumn>
+							<mx:DataGridColumn dataField="内容_xFF08_必填_xFF09_" headerText="内容"></mx:DataGridColumn>
+						</mx:columns>
+					</mx:DataGrid>
+					<s:Label id="txtFile" x="183" y="143" color="#FF0000" fontSize="14"
+							 text="XXX.cvs"/>
+					<s:Button id="btnSubmit" y="460" height="25" label="确认发送" buttonMode="true"
+							  chromeColor="#7DAC08" click="btnSubmit_clickHandler(event)"
+							  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+							  horizontalCenter="-100"/>
+					<s:Button y="460" height="25" label="&lt;&lt;返回" buttonMode="true"
+							  chromeColor="#F28D21"
+							  click="dispatchEvent(new Event('Back2HomeEvent', true, false))"
+							  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+							  horizontalCenter="20"/>
+				</s:BorderContainer>
+
+				
+			</s:Group>
+			
+		</s:Scroller>
+	</s:VGroup>
+	
+	
+</s:BorderContainer>

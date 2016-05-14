@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+		   xmlns:userservice="services.userservice.*"
+		   width="536" height="492" alpha="1.0" backgroundAlpha="0.9" backgroundColor="#84A1FF"
+		   borderColor="#0096FF" borderStyle="solid" cornerRadius="20">
+	
+	<mx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			protected function btnBack_clickHandler(event:MouseEvent):void
+			{
+				PopUpManager.removePopUp(this);
+			}
+			
+			protected function btnSubmit_clickHandler(event:MouseEvent):void
+			{
+				if (txiUserid.text == "") {
+					Alert.show("用户名不能为空")
+					return
+				}
+				if (txiPsw.text == ""){
+					Alert.show("密码不能为空")
+					return
+				}
+				if (txiRePsw.text == ""){
+					Alert.show("重复密码不能为空")
+					return
+				}
+				if (txiPsw.text != txiRePsw.text){
+					Alert.show("两次输入密码不一致")
+					return
+				}
+				if (txiName.text == ""){
+					Alert.show("真实姓名不能为空")
+					return
+				}
+				if (txiMobile.text == ""){
+					Alert.show("手机号码不能为空")
+					return
+				}
+				if (txiTel.text == ""){
+					Alert.show("公司座机不能为空")
+					return
+				}
+				if (txiQQ.text == ""){
+					Alert.show("QQ不能为空")
+					return
+				}
+				if (txiEmail.text == ""){
+					Alert.show("电子邮箱不能为空")
+					return
+				}
+				if (txiComName.text == ""){
+					Alert.show("公司名称不能为空")
+					return
+				}
+				if (txiComAddr.text == ""){
+					Alert.show("公司地址不能为空")
+					return
+				}
+
+				RegisterResult.token = userService.Register(txiUserid.text, txiPsw.text, txiName.text, rdoSex.selectedValue.toString()
+																, txiMobile.text, txiTel.text, txiQQ.text, txiEmail.text, txiComName.text, txiComAddr.text);
+				RegisterResult.addEventListener(ResultEvent.RESULT,register_handler);
+				RegisterResult.addEventListener(FaultEvent.FAULT,onFault);
+				//userService.Register.send();
+			}
+			
+			internal function onFault(evt:FaultEvent):void
+			{
+				Alert.show(evt.fault.faultDetail.toString());
+			}
+			
+			protected function register_handler(event:ResultEvent):void 
+			{
+				var result:String = event.result.toString();
+				Alert.show(result);
+				if (result == "注册成功！\n请等待管理员审核...")
+				{
+					txiUserid.text = "";
+					txiPsw.text = "";
+					txiName.text = "";
+					txiMobile.text = "";
+					txiTel.text = "";
+					txiQQ.text = "";
+					txiEmail.text = "";
+					txiComName.text = "";
+					txiComAddr.text = "";
+					PopUpManager.removePopUp(this);
+				}
+			}
+			
+			
+		]]>
+	</mx:Script>
+	
+	<!--
+	<mx:WebService id="userService" showBusyCursor="true"  wsdl="http://localhost:8003/UserService.asmx?WSDL">
+		<mx:operation name="Register" resultFormat="object" result="register_handler(event)" fault="onFault(event)">
+			<mx:request>
+				<userid>{txiUserid.text}</userid>
+				<password>{txiPsw.text}</password>
+				<name>{txiName.text}</name>
+				<sex>{rdoSex.selectedValue.toString()}</sex>
+				<mobile>{txiMobile.text}</mobile>
+				<tel>{txiTel.text}</tel>
+				<qq>{txiQQ.text}</qq>
+				<email>{txiEmail.text}</email>
+				<com_name>{txiComName.text}</com_name>
+				<com_addr>{txiComAddr.text}</com_addr>
+			</mx:request>
+		</mx:operation>
+	</mx:WebService>
+	-->
+	
+	<mx:Text top="30" fontFamily="中易黑体" fontSize="24" fontWeight="bold" horizontalCenter="0"
+			 text="新用户注册"/>
+	<mx:Form x="24" y="64" width="269" height="364" fontSize="14">
+		<mx:FormItem label="用户名">
+			<mx:TextInput id="txiUserid"/>
+		</mx:FormItem>
+		<mx:FormItem label="密   码">
+			<mx:TextInput id="txiPsw" displayAsPassword="true"/>
+		</mx:FormItem>
+		<mx:FormItem label="确认密码">
+			<mx:TextInput id="txiRePsw" displayAsPassword="true" editable="true"/>
+		</mx:FormItem>
+		<mx:FormItem label="姓   名">
+			<mx:TextInput id="txiName"/>
+		</mx:FormItem>
+		<mx:FormItem label="性   别">
+			<mx:HBox width="100" height="25">
+				<mx:RadioButtonGroup id="rdoSex"/>
+				<mx:RadioButton label="男" groupName="rdoSex" selected="true"/>
+				<mx:RadioButton label="女" groupName="rdoSex"/>
+				
+			</mx:HBox>
+		</mx:FormItem>
+		<mx:FormItem label="手   机">
+			<mx:TextInput id="txiMobile"/>
+		</mx:FormItem>
+		<mx:FormItem label="公司座机">
+			<mx:TextInput id="txiTel"/>
+		</mx:FormItem>
+		<mx:FormItem label="Email">
+			<mx:TextInput id="txiEmail"/>
+		</mx:FormItem>
+		<mx:FormItem label="QQ号码">
+			<mx:TextInput id="txiQQ"/>
+		</mx:FormItem>
+		<mx:FormItem label="公司名称">
+			<mx:TextInput id="txiComName"/>
+		</mx:FormItem>
+	</mx:Form>
+	<mx:Form x="271" y="64" width="263" height="366" color="#FF0000" fontSize="14">
+		<mx:FormItem label="*">
+			<mx:Text height="24" color="#4D4D4D" text="4-20位数字、字母组合"/>
+		</mx:FormItem>
+		<mx:FormItem height="24" label="*">
+			<mx:Text color="#4D4D4D" text="必须大于8位"/>
+		</mx:FormItem>
+		<mx:FormItem height="24" label="*">
+			<mx:Text color="#4D4D4D" text="请重复输入密码确认"/>
+		</mx:FormItem>
+		<mx:FormItem height="24" label="*">
+			<mx:Text color="#4D4D4D" text="用户真实姓名"/>
+		</mx:FormItem>
+		<mx:FormItem height="24" label="*">
+			<mx:Text color="#4D4D4D" text="性别"/>
+		</mx:FormItem>
+		<mx:FormItem height="24" label="*">
+			<mx:Text height="24" color="#4D4D4D" text="个人联系手机"/>
+		</mx:FormItem>
+		<mx:FormItem height="24" label="*">
+			<mx:Text height="24" color="#4D4D4D" text="公司座机，必填"/>
+		</mx:FormItem>
+		<mx:FormItem height="24" label="*">
+			<mx:Text height="24" color="#4D4D4D" text="邮箱地址，如：xxx@163.com"/>
+		</mx:FormItem>
+		<mx:FormItem height="24" label="*">
+			<mx:Text height="24" color="#4D4D4D" text="腾讯QQ号码，方便联系"/>
+		</mx:FormItem>
+		<mx:FormItem height="24" label="*">
+			<mx:Text height="24" color="#4D4D4D" text="所属公司名称，不能留空"/>
+		</mx:FormItem>
+	</mx:Form>
+	<mx:FormItem x="40" y="382" width="440" label="公司地址" fontSize="14">
+		<mx:TextInput id="txiComAddr" width="333"/>
+	</mx:FormItem>
+	<mx:Label x="466" y="386" color="#FF0000" fontSize="14" text="*"/>
+	<mx:Button id="btnSubmit" x="228" y="436" label="确认注册" buttonMode="true"
+			   click="btnSubmit_clickHandler(event)" fontSize="14"/>
+	<mx:LinkButton id="btnBack" x="308" y="437" label="返回登录界面" click="btnBack_clickHandler(event)"
+				   color="#000CFF" fontSize="12" fontWeight="normal"  buttonMode="true"/>
+	<mx:CallResponder id="RegisterResult"/>
+	<userservice:UserService id="userService"
+							 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+							 showBusyCursor="true"/>
+	
+</mx:Canvas>

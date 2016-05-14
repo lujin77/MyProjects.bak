@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:utilservice="services.utilservice.*"
+				   xmlns:userservice="services.userservice.*"
+				   width="100%" height="100%" backgroundColor="#F1F4F8" borderVisible="true"
+				   borderWeight="1" cornerRadius="10" dropShadowVisible="true" creationComplete="firstInit()">
+	<fx:Declarations>
+		<s:CallResponder id="GetStrListResult"/>
+		<utilservice:UtilService id="utilService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<s:CallResponder id="QueryResult"/>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<mx:DateFormatter id="FD" formatString="YYYY年MM月DD日 HH时MM分SS秒" />
+		<s:CallResponder id="DeleteResult"/>
+		<userservice:UserService id="userService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<s:CallResponder id="GetNoWithGroupsResult"/>
+		<s:CallResponder id="DeleteAllResult"/>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entity.AuthenticationInfo;
+			import entity.SMS;
+			import entity.User;
+			
+			import flash.utils.Dictionary;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.events.CloseEvent;
+			import mx.events.DataGridEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			import mx.utils.StringUtil;
+			
+			import myevent.DataGridEvent;
+			
+			private var page:int = 0;
+			private var count:int = 0;
+			
+			private var pageIndex:int = 0;
+			//private var pageSize:int = 2;
+			private var pageSize:int = AuthenticationInfo.PageSize;
+			private var totalPage:int = 0;
+			
+			private var delCount:int = 0;
+			
+			private var selectedItems:ArrayCollection = new ArrayCollection();
+			
+			public function firstInit():void 
+			{
+				adgTable.addEventListener("selectRow",selectHandler);
+				init();
+			}
+			
+			private function selectHandler(evt:myevent.DataGridEvent):void{
+				if(evt.isSelect){
+					var obj:Object = new Object;
+					obj.id = evt.o.id;
+					obj.name = evt.o.组名称;
+					obj.num = evt.o.号码数量;
+					obj.content = evt.o.备注;
+					obj.index = adgTable.selectedIndex;
+					for (var i:int; i < selectedItems.length ; ++i) {
+						if (selectedItems[i].id == obj.id) {
+							return;
+						}
+					}
+					selectedItems.addItem(obj);
+				}else{
+					for (var i:int; i < selectedItems.length ; ++i) {
+						if (selectedItems[i].id == evt.o.id) {
+							selectedItems.removeItemAt(i);
+							return;
+						}
+					}
+				}
+			}
+			
+			public function init():void
+			{
+				//var condition:String = "[分组id]='" + cbxGroups.selectedItem.data + "'";
+				//GetStrListResult.token = utilService.GetStrList("群发簿", condition, "号码", AuthenticationInfo.token);			
+				reset();
+				adgTable.dataProvider = null;
+				txiPage.maximum = 0;
+				txiPage.minimum = 0;
+				txiPage.value = 0;	
+				page = 0;
+				count = 0;
+				txtPageTag.text = "第" + txiPage.value.toString() + "页 / 共" + page.toString() + "页，共" + count.toString() + "条记录";
+				//清空checkbox的选择
+				for (var i:int=0;i<adgTable.dataProvider.length;i++){
+					adgTable.indexToItemRenderer(i).document.check.selected = false
+				}
+			}
+			
+			
+			internal function onFault(evt:FaultEvent):void
+			{
+				Alert.show(evt.fault.faultDetail.toString());
+			}
+			
+			protected function showFirstPage(event:MouseEvent):void {
+				txiPage.value = 0;
+				var conditon:String = checkCondition();
+				submit(conditon);
+			}
+			
+			protected function showPreviousPage(event:MouseEvent):void {
+				if (pageIndex > 0)
+					txiPage.value -= 1;
+				var conditon:String = checkCondition();
+				submit(conditon);
+			}
+			
+			protected function showNextPage(event:MouseEvent):void {
+				if (pageIndex < page-1)
+					txiPage.value += 1;
+				var conditon:String = checkCondition();
+				submit(conditon);
+			}
+			
+			protected function showLastPage(event:MouseEvent):void {
+				txiPage.value = page;
+				var conditon:String = checkCondition();
+				submit(conditon);
+			}
+			
+			protected function btnSubmit_clickHandler(event:MouseEvent):void
+			{
+				var conditon:String = checkCondition();
+				submit(conditon);
+			}
+			
+			protected function submit(condition:String):void {
+				
+				if (txiPage.value > 0)
+					pageIndex = txiPage.value - 1;
+				else 
+					pageIndex = 0;
+				//Alert.show("condition:"+condition+"\nindex:"+pageIndex.toString()+"\nsize:"+pageSize.toString()+"\ntoken:"+AuthenticationInfo.token);
+				QueryResult.token = utilService.Query(pageIndex.toString(), pageSize.toString(), "群发簿分组汇总", "创建时间 desc", "*", condition, AuthenticationInfo.token);
+				QueryResult.addEventListener(ResultEvent.RESULT,submit_handler);
+				QueryResult.addEventListener(FaultEvent.FAULT,onFault);	
+			}
+			
+			protected function checkCondition():String {
+				var condition:String = " 用户id='" + User.id + "' ";
+				if (txiName.text != "") {
+					condition += " and 组名称 like '%" + txiName.text + "%' "
+				}
+				
+				return condition;	
+				
+			}
+			
+			protected function submit_handler(event:ResultEvent):void
+			{
+				var result:XML = XML(event.result);
+				//var result:XML = XML(event.result as String);
+				//var results:XMLList = result.children();
+				//Alert.show(result.status);
+				adgTable.dataProvider = null;
+				adgTable.dataProvider = result.NewDataSet.Table;
+				
+				page = int(result.status.page);
+				count = int(result.status.count);
+				txiPage.value = pageIndex + 1;
+				txiPage.minimum = 1;
+				txiPage.maximum = page;
+				
+				//Alert.show("page:"+page+", count:"+count);
+				
+				txtPageTag.text = "第" + txiPage.value.toString() + "页 / 共" + page.toString() + "页，共" + count.toString() + "条记录";
+				
+				selectedItems.removeAll();
+				
+				//清空checkbox的选择
+				for (var i:int=0;i<adgTable.dataProvider.length;i++){
+					adgTable.indexToItemRenderer(i).document.check.selected = false
+				}
+			}
+			
+			protected function btnReset_clickHandler(event:MouseEvent):void
+			{
+				reset();
+			}
+			
+			protected function reset():void
+			{
+				txiName.text = "";
+			}
+			
+			
+			private function formatDate(item:Object,column:DataGridColumn):String{
+				var str:String = item[column.dataField];
+				var datetime:String = str.substr(0,10);
+				datetime += " " + str.substr(11,8);
+				return datetime;
+			}
+			
+			
+			protected function btnDelete_clickHandler(event:MouseEvent):void
+			{
+				if (selectedItems.length == 0) {
+					Alert.show("请先选择要删除的条目！");
+					return;
+				}
+				
+				Alert.show("确定要删除" + selectedItems.length.toString() + "条记录吗？","提示",Alert.YES|Alert.NO,null,function(event:CloseEvent):void {
+					if(event.detail == Alert.YES) {
+//						delCount = selectedItems.length;
+//						var condition:String = " id='" + selectedItems[0].id + "' "
+//						DeleteResult.token = utilService.Delete(User.id, User.userid, "号码群组", condition, AuthenticationInfo.token);
+//						DeleteResult.addEventListener(ResultEvent.RESULT,delete_handler);
+//						DeleteResult.addEventListener(FaultEvent.FAULT,onFault)
+						
+						var IDs:String = "";
+						var isFirst:Boolean = true;
+						for (var i:int = 0; i < selectedItems.length; ++i) {
+							if (isFirst) {
+								IDs = selectedItems[i].id;
+								isFirst = false;
+							} else {
+								IDs += ","+selectedItems[i].id;
+							}
+						}
+						
+						DeleteAllResult.token = utilService.DeleteAll(User.id, User.userid, "号码群组", "id", IDs, AuthenticationInfo.token);
+						DeleteAllResult.addEventListener(ResultEvent.RESULT,delete_handler);
+						DeleteAllResult.addEventListener(FaultEvent.FAULT,onFault)
+					}		
+				})
+			}
+			
+			protected function delete_handler(event:ResultEvent):void
+			{
+				var result:String = event.result as String;
+				Alert.show(result);
+				var conditon:String = checkCondition();
+				submit(conditon);
+				
+//				if (result == "删除成功！" && selectedItems.length > 0) {
+//					selectedItems.removeItemAt(0);
+//					//全部删除完成后，调用刷新
+//					if (selectedItems.length == 0) {
+//						var conditon:String = checkCondition();
+//						submit(conditon);
+//						Alert.show("成功删除" + delCount.toString() + "条记录！");
+//						//清空checkbox的选择
+//						for (var i:int=0;i<adgTable.dataProvider.length;i++){
+//							adgTable.indexToItemRenderer(i).document.check.selected = false
+//						}
+//						return;
+//					}
+//					var condition:String = " id='" + selectedItems[0].id + "' "
+//					DeleteResult.token = utilService.Delete(User.id, User.userid, "号码群组", condition, AuthenticationInfo.token);
+//					//Alert.show(selectedItems.length.toString())
+//				}
+			}
+			
+			protected function btnSendSMS_clickHandler(event:MouseEvent):void
+			{
+				if (selectedItems.length == 0) {
+					Alert.show("请先选择要发送短信的群发薄！");
+					return;
+				}
+				
+				var group_id:String = "";
+				if (selectedItems.length >= 1) {
+					var isFirst = true;
+					for (var i:int=0;i<selectedItems.length;i++){
+						if (isFirst) {
+							group_id += selectedItems[i].id;
+							isFirst = false;
+						} else {
+							group_id += "," + selectedItems[i].id;
+						}
+					}
+				}
+				
+				//Alert.show(group_id);
+				GetNoWithGroupsResult.token = userService.GetNoWithGroups(group_id, "群发簿", AuthenticationInfo.token);
+				GetNoWithGroupsResult.addEventListener(ResultEvent.RESULT,getTels_handler);
+				GetNoWithGroupsResult.addEventListener(FaultEvent.FAULT,onFault);	
+			}
+			
+			protected function getTels_handler(event:ResultEvent):void
+			{
+				var arr:ArrayCollection = event.result as ArrayCollection;
+				if (arr.length == 0) {
+					Alert.show("选择的联系组中未包含号码！");
+					return;
+				} else {
+					var tels:String = "";
+					var isFirst = true;
+					for (var i:int=0;i<arr.length;i++){
+						if (isFirst) {
+							tels += arr[i];
+							isFirst = false;
+						} else {
+							tels += "," + arr[i];
+						}
+					}
+					
+					SMS.tels = tels;
+					this.dispatchEvent(new Event("FriendListSendEvent"));
+					//清空checkbox的选择
+					for (var i:int=0;i<adgTable.dataProvider.length;i++){
+						adgTable.indexToItemRenderer(i).document.check.selected = false
+					}
+
+				}
+			}
+			
+			protected function btnEdit_clickHandler(event:MouseEvent):void
+			{
+				if (selectedItems.length == 0) {
+					Alert.show("请先选择要编辑的群发薄！");
+					return;
+				}
+				
+				if (selectedItems.length > 1) {
+					Alert.show("一次只能编辑一条！");
+					return;
+				}
+				
+				
+				if (selectedItems.length == 1) {
+					var editForm:EditNoList = new EditNoList();
+					PopUpManager.addPopUp(editForm, this, true);    
+					PopUpManager.centerPopUp(editForm);
+					editForm.init(selectedItems[0].id, selectedItems[0].name, selectedItems[0].num, selectedItems[0].content);
+				}
+				
+				//清空checkbox的选择
+				for (var i:int=0;i<adgTable.dataProvider.length;i++){
+					adgTable.indexToItemRenderer(i).document.check.selected = false
+				}
+			}
+			
+			protected function btnSelectAll_clickHandler(event:MouseEvent):void
+			{
+				selectedItems.removeAll();
+				//清空checkbox的选择
+				for (var i:int=0;i<adgTable.dataProvider.length;i++){
+					adgTable.indexToItemRenderer(i).document.check.selected = true;	
+					
+					var obj:Object = new Object;
+					obj.id = adgTable.dataProvider[i].id;
+					obj.name = adgTable.dataProvider[i].组名称;
+					obj.num = adgTable.dataProvider[i].号码数量;
+					obj.content = adgTable.dataProvider[i].备注;
+					obj.index = i;
+					selectedItems.addItem(obj);
+				}
+				
+				//Alert.show(selectedItems.length.toString())
+			}
+			
+			protected function btnClearAll_clickHandler(event:MouseEvent):void
+			{
+				//清空checkbox的选择
+				for (var i:int=0;i<adgTable.dataProvider.length;i++){
+					adgTable.indexToItemRenderer(i).document.check.selected = false;	
+				}
+				selectedItems.removeAll();
+			}
+			
+		]]>
+	</fx:Script>
+	<s:VGroup x="0" y="0" width="100%" height="100%">
+		<s:BorderContainer top="0" width="100%" height="30" backgroundColor="#6A94BA"
+						   borderVisible="false" borderWeight="0" cornerRadius="10"
+						   horizontalCenter="0">
+			<s:BorderContainer right="-1" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			<s:BorderContainer left="0" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			
+			<s:Image x="24" y="3" source="img/bg/tab.gif"/>
+			<s:Label left="57" top="10" fontFamily="中易黑体" fontSize="14" fontWeight="bold" text="群发簿列表"/>
+		</s:BorderContainer>
+		<s:Scroller width="100%" height="100%">
+			<s:Group x="158" y="225" width="100%" height="100%">
+				<s:Label x="23" y="10" height="22" text="名称:" verticalAlign="middle"/>
+				<s:TextInput id="txiName" x="58" y="9"/>
+				<s:Button id="btnSubmit" x="210" y="12" width="50" label="查询"
+						  click="btnSubmit_clickHandler(event)" cornerRadius="3"/>
+				<s:Button id="btnReset" x="275" y="12" width="80" label="清空条件"
+						  click="btnReset_clickHandler(event)" cornerRadius="3"/>
+				<mx:DataGrid id="adgTable" y="49" left="20" right="20" height="395" >
+					<mx:columns>
+						<mx:DataGridColumn headerText="选择" itemRenderer="view.CheckBox" width="40" />
+						<mx:DataGridColumn dataField="组名称" headerText="名称" width="200"/>
+						<mx:DataGridColumn dataField="号码数量" headerText="号码数量" width="100"/>
+						<mx:DataGridColumn dataField="创建时间" headerText="创建时间" width="150" labelFunction="formatDate"/>						
+						<mx:DataGridColumn dataField="备注" headerText="备注"/>
+					</mx:columns>
+				</mx:DataGrid>
+				
+				<s:HGroup y="490" width="300" height="50" gap="20" horizontalCenter="0">
+					<s:Button width="80" label="删除所选" click="btnDelete_clickHandler(event)"
+							  cornerRadius="3"/>
+					<s:Button id="btnEdit" width="50" label="修改" click="btnEdit_clickHandler(event)"
+							  cornerRadius="3"/>
+					<s:Button id="btnSendSMS" width="80" label="群发短信"
+							  click="btnSendSMS_clickHandler(event)" cornerRadius="3"/>
+					<s:Button y="495" height="25" label="&lt;&lt;返回" buttonMode="true"
+							  chromeColor="#F28D21"
+							  click="dispatchEvent(new Event('Back2HomeEvent', true, false))"
+							  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+							  horizontalCenter="20"/>
+				</s:HGroup>
+				<mx:HBox y="452" right="20" width="600">
+					<mx:Spacer/>
+					<mx:Text id="txtPageTag" width="200" text="第0页 / 共0页，共0条记录"/>
+					<mx:LinkButton id="fPage" label="首页" click="showFirstPage(event)" color="#002AFF"/>
+					<mx:LinkButton id="pPage" label="上一页" click="showPreviousPage(event)" color="#002AFF"/>
+					<mx:Text width="15" text="第"/>
+					<s:NumericStepper id="txiPage"/>
+					<mx:Text width="15" text="页"/>
+					<mx:LinkButton id="nPage" label="下一页" click="showNextPage(event)" color="#002AFF"/>
+					<mx:LinkButton id="lPage" label="尾页" click="showLastPage(event)" color="#002AFF"/>
+				</mx:HBox>
+				<s:HGroup y="452" left="20" width="100" height="30" gap="2">
+					<s:Button id="btnSelectAll" width="50" label="全选"
+							  click="btnSelectAll_clickHandler(event)"/>
+					<s:Button id="btnClearAll" width="50" label="清空"
+							  click="btnClearAll_clickHandler(event)"/>
+				</s:HGroup>
+				
+			</s:Group>	
+		</s:Scroller>
+	</s:VGroup>
+	
+	
+</s:BorderContainer>

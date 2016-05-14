@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:userservice="services.userservice.*"
+				   width="100%" height="100%" backgroundColor="#F1F4F8" borderVisible="true"
+				   borderWeight="1" cornerRadius="10" creationComplete="init()"
+				   dropShadowVisible="true">
+	<fx:Declarations>
+		<s:RadioButtonGroup id="rdoSex"/>
+		<s:CallResponder id="UpdateUserResult"/>
+		<userservice:UserService id="userService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<!--
+		<s:WebService id="userService" showBusyCursor="true"  wsdl="http://localhost:8003/UserService.asmx?WSDL">
+			<s:operation name="UpdateUser" resultFormat="object" result="onResult(event)" fault="onFault(event)">
+				<s:request>
+					<id>{User.id}</id>
+					<userid>{txtUserid.text}</userid>
+					<name>{txiName.text}</name>
+					<sex>{rdoSex.selectedValue.toString()}</sex>
+					<mobile>{txiMobile.text}</mobile>
+					<tel>{txiTel.text}</tel>
+					<qq>{txiQQ.text}</qq>
+					<email>{txiEmail.text}</email>
+					<com_name>{txiComName.text}</com_name>
+					<com_addr>{txiComAddr.text}</com_addr>
+				</s:request>
+			</s:operation>
+		</s:WebService>
+		-->
+	</fx:Declarations>
+	
+
+	
+	<fx:Script>
+		<![CDATA[
+			import entity.User;
+			import entity.AuthenticationInfo;
+			import mx.controls.Alert;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+				
+			public function init():void {
+				txtUserid.text = User.userid;
+				txiName.text = User.name;
+				if (User.sex == "男")
+					rdoMale.selected = true;
+				else
+					rdoFemale.selected = true
+				txiMobile.text = User.mobile;
+				txiTel.text = User.tel;
+				txiQQ.text = User.qq;
+				txiEmail.text = User.email;
+				txiComName.text = User.com_name;
+				txiComAddr.text = User.com_addr;
+			}
+			
+			internal function onFault(evt:FaultEvent):void
+			{
+				Alert.show(evt.fault.faultDetail.toString());
+			}
+			
+			internal function onResult(evt:ResultEvent):void
+			{
+				var result:String = evt.result.toString();
+				if (result == "用户信息修改成功！") {
+					User.name = txiName.text;
+					if (rdoMale.selected = true)
+						User.sex == "男"
+					else
+						User.sex == "女"
+					User.mobile = txiMobile.text;
+					User.tel = txiTel.text;
+					User.qq = txiQQ.text;
+					User.email = txiEmail.text;
+					User.com_name = txiComName.text;
+					User.com_addr = txiComAddr.text;
+				}
+				Alert.show(result);
+			}
+			
+			
+			protected function btnSubmit_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				if (txiName.text == "") {
+					Alert.show("用户名不能为空")
+					return
+				}
+				if (txiMobile.text == ""){
+					Alert.show("手机号码不能为空")
+					return
+				}
+				if (txiTel.text == ""){
+					Alert.show("公司座机不能为空")
+					return
+				}
+				if (txiQQ.text == ""){
+					Alert.show("QQ不能为空")
+					return
+				}
+				if (txiEmail.text == ""){
+					Alert.show("电子邮箱不能为空")
+					return
+				}
+				if (txiComName.text == ""){
+					Alert.show("公司名称不能为空")
+					return
+				}
+				if (txiComAddr.text == ""){
+					Alert.show("公司地址不能为空")
+					return
+				}
+
+				//userService.UpdateUser.send();
+				UpdateUserResult.token = userService.UpdateUser(User.id, txtUserid.text, txiName.text
+																	, rdoSex.selectedValue.toString()
+																	, txiMobile.text, txiTel.text
+																	, txiQQ.text, txiEmail.text
+																	, txiComName.text, txiComAddr.text
+																	, AuthenticationInfo.token);
+				UpdateUserResult.addEventListener(ResultEvent.RESULT,onResult);
+				UpdateUserResult.addEventListener(FaultEvent.FAULT,onFault);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:VGroup x="0" y="0" width="100%" height="100%">
+		<s:BorderContainer top="0" width="100%" height="30" backgroundColor="#6A94BA"
+						   borderVisible="false" borderWeight="0" cornerRadius="10"
+						   horizontalCenter="0">
+			<s:BorderContainer right="-1" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			<s:BorderContainer left="0" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			
+			<s:Image x="24" y="3" source="img/bg/tab.gif"/>
+			<s:Label left="65" top="10" fontFamily="中易黑体" fontSize="14" fontWeight="bold" text="修改资料"/>
+		</s:BorderContainer>
+		<s:Scroller width="100%" height="100%">
+			<s:Group x="268" y="316" width="100%" height="100%">
+				<s:Form top="10" width="500" height="452" horizontalCenter="0">
+					<s:FormItem label="用户名:">
+						<s:Label id="txtUserid" text="xxxx"/>
+					</s:FormItem>
+					<s:FormItem label="姓名:">
+						<s:TextInput id="txiName"/>
+					</s:FormItem>
+					<s:FormItem label="性别:">
+						<mx:HBox>
+							<s:RadioButton id="rdoMale" label="男" groupName="rdoSex"/>
+							<s:RadioButton id="rdoFemale" label="女" groupName="rdoSex"/>
+						</mx:HBox>
+					</s:FormItem>
+					<s:FormItem label="手机：">
+						<s:TextInput id="txiMobile"/>
+					</s:FormItem>
+					<s:FormItem label="公司座机：">
+						<s:TextInput id="txiTel"/>
+					</s:FormItem>
+					<s:FormItem label="Email：">
+						<s:TextInput id="txiEmail"/>
+					</s:FormItem>
+					<s:FormItem label="QQ号码：">
+						<s:TextInput id="txiQQ"/>
+					</s:FormItem>
+					<s:FormItem width="300" label="公司名称：">
+						<s:TextInput id="txiComName" width="200"/>
+					</s:FormItem>
+					<s:FormItem width="440" label="公司地址：" fontSize="12">
+						<s:TextInput id="txiComAddr" width="333"/>
+					</s:FormItem>
+				</s:Form>
+				<s:HGroup y="479" width="200" height="50" gap="20" horizontalCenter="0">
+					<s:Button id="btnSubmit" y="495" height="25" label="确认修改" buttonMode="true"
+							  chromeColor="#7DAC08" click="btnSubmit_clickHandler(event)"
+							  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+							  horizontalCenter="-100"/>
+					<s:Button y="495" height="25" label="重填" buttonMode="true"
+							  chromeColor="#F28D21"
+							  click="init()"
+							  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+							  horizontalCenter="20"/>
+				</s:HGroup>
+			</s:Group>
+			
+		</s:Scroller>
+	</s:VGroup>
+	
+	
+</s:BorderContainer>

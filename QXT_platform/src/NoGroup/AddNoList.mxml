@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:utilservice="services.utilservice.*"
+				   xmlns:userservice="services.userservice.*"
+				   width="100%" height="100%" backgroundColor="#F1F4F8" borderVisible="true"
+				   borderWeight="1" cornerRadius="10" creationComplete="init()"
+				   dropShadowVisible="true">
+	
+	<fx:Script>
+		<![CDATA[
+			import entity.AuthenticationInfo;
+			import entity.Config;
+			import entity.User;
+			
+			import flash.utils.Dictionary;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.StringUtil;
+			
+			import spark.events.IndexChangeEvent;
+			import spark.events.TextOperationEvent;
+			
+			private var file:FileReference = new FileReference();
+			private var parentPath:String = null;
+			private var fileName:String=null;
+			
+			public function init():void {
+				reset();
+			}
+			
+			protected function reset():void {
+				txiName.text = "";
+				txiNo.text = "";
+				txtNum.text = "0";
+				txtFile.text = "";
+				txtShardUsers.text = "";
+				
+			}
+			
+			protected function validate():Boolean {
+				if (txiName.text == "") {
+					Alert.show("群发薄名称不能为空!");
+					txiName.setFocus();
+					return false;
+				}
+				
+				if (txiNo.text == "") {
+					Alert.show("号码不能为空!");
+					txiNo.setFocus();
+					return false;
+				}
+				
+				return true;
+			}
+			
+			protected function getValuse():String {
+				var sql:String = "newid()";
+				
+				return sql;
+				
+			}
+			
+			protected function btnOpenFile_clickHandler(event:MouseEvent):void
+			{
+				var filter:FileFilter=new FileFilter("文本（*.txt）", "*.txt");
+				file.addEventListener(Event.SELECT,selectedFile);
+				file.browse([filter]);
+			}
+			
+			/**
+			 * 选择文件
+			 * */
+			protected function selectedFile(e:Event):void{
+				/*
+				if(e.target.size > 524288){
+				Alert.show("要读取的文件大于512KB，请重新选择文件");
+				return;
+				}
+				*/
+				fileName = e.target.name;
+				txtFile.text = fileName;
+				file.load();
+				file.addEventListener(Event.COMPLETE,getData);
+				
+			}
+			
+			/**
+			 * 获取文件
+			 * */
+			protected function getData(e:Event):void{
+				var dataArr:ByteArray = file.data;
+				var dataStr:String;
+				dataArr.position = 0;
+				dataStr = dataArr.readUTFBytes(dataArr.length);
+				//拼凑成文本
+				//dataStr = dataStr.replace("\r", "");
+				var arrTels:Array = new Array();
+//				if (dataStr.search("\r\n") > 0) {
+//					//arrTels = dataStr.split("\r\n");
+//					txiNo.text = dataStr.split("\r\n").join();
+//				} else if (dataStr.search("\n\r") > 0) {
+//					//arrTels = dataStr.split("\n\r");
+//					txiNo.text = dataStr.split("\n\r").join();
+//				} else if (dataStr.search("\n") > 0) {
+//					//arrTels = dataStr.split("\n");
+//					txiNo.text = dataStr.split("\n").join();
+//				} else if (dataStr.search("\r") > 0) {
+//					//arrTels = dataStr.split("\r");
+//					txiNo.text = dataStr.split("\r").join();
+//				}
+				//txiNo.text = dataStr.split("\r\n").join();
+				//Alert.show("ok");
+				//return;
+				arrTels = dataStr.split("\n");
+				var isFirst:Boolean = false;
+				var str:String = "";
+				var tel:String = "";
+				var errNum:int = 0;
+				var noNum:int = 0;
+				//var errTels:String = "";
+				var arrTelsOK:ArrayList = new ArrayList();
+				for (var i:int = 0; i < arrTels.length; ++ i)  
+				{
+					//Alert.show(i.toString())
+					tel = StringUtil.trim(arrTels[i].toString());
+					//tel = arrTels[i].toString();
+					if (tel == "")
+						continue
+					if (tel.length != 11) {
+						errNum = errNum + 1;
+						continue;
+					}
+					
+					++noNum;
+					arrTelsOK.addItem(tel);
+					/*
+					if (!isFirst) {
+						str += tel;
+						isFirst = true;
+					} else {
+						str += "," + tel;
+					}
+					*/
+				}
+				//Alert.show("end loop");
+				//return;
+				//txiNo.text = arrTelsOK.join(',');
+				//Alert.show(arrTelsOK.length.toString());
+				//return;
+				
+				txiNo.text = arrTelsOK.toArray().join();
+				txtNum.text = noNum.toString();
+				
+				if (errNum > 0) {
+					var result:String = "有" + errNum.toString() + "个号码有误！\n长度不足11位，已去除";
+					Alert.show(result, "警告"); 
+				}
+			}
+			
+			protected function btnSetSharedUser_clickHandler(event:MouseEvent):void
+			{
+				if (txiSharedUser.text == "") {
+					Alert.show("共享用户名不能为空！");
+					return;
+				}
+
+				if (txiSharedUser.text == User.userid) {
+					Alert.show("请不要添加自己为共享用户！");
+					return;
+				}
+				
+				if (txtShardUsers.text.search(txiSharedUser.text) >0 ) {
+					Alert.show("该共享用户已存在，请不要重复添加！");
+					return;
+				}
+				
+				txiSharedUser.editable = false;
+				var condition:String = "用户名='" + txiSharedUser.text + "'"
+				CheckExistResult.token = utilService.CheckExist("用户", condition);
+				CheckExistResult.addEventListener(ResultEvent.RESULT,checkExist_handler);
+				CheckExistResult.addEventListener(FaultEvent.FAULT,onFault);
+			}
+			
+			protected function checkExist_handler(event:ResultEvent):void
+			{
+				var result:Boolean = event.result as Boolean;
+				txiSharedUser.editable = true;
+				if (result) {
+					
+					if (txtShardUsers.text == "") {
+						txtShardUsers.text += txiSharedUser.text;
+					} else {
+						txtShardUsers.text += "," + txiSharedUser.text;
+					}
+					txiSharedUser.text = "";
+				} else {
+					Alert.show("该用户不存在，请重新确认！");
+				}
+			}
+			
+			internal function onFault(evt:FaultEvent):void
+			{
+				Alert.show(evt.fault.faultDetail.toString());
+			}
+			
+			protected function btnReset_clickHandler(event:MouseEvent):void
+			{
+				txtShardUsers.text = "";
+				txiName.text = "";
+				txiNo.text = "";
+				txiContent.text = "";
+				txiSharedUser.text = "";
+			}
+			
+			protected function btnSubmit_clickHandler(event:MouseEvent):void
+			{
+				if (!validate()) return;
+
+				//Alert.show(values)
+				Alert.show("确定要添加群发簿吗？","提示",Alert.YES|Alert.NO,null,function(event:CloseEvent):void {
+					if(event.detail == Alert.YES) {
+						AddNoListResult.token = userService.AddNoList(User.id, User.userid, txiName.text, txiContent.text, txiNo.text
+																		, txtShardUsers.text, AuthenticationInfo.token);
+						AddNoListResult.addEventListener(ResultEvent.RESULT,submit_handler);
+						AddNoListResult.addEventListener(FaultEvent.FAULT,onFault)
+					}		
+				})
+			}
+			
+			internal function submit_handler(evt:ResultEvent):void
+			{
+				var result:String = evt.result as String;
+				Alert.show(result);
+				
+			}
+			
+
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:CallResponder id="CheckExistResult"/>
+		<utilservice:UtilService id="utilService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<s:CallResponder id="AddNoListResult"/>
+		<userservice:UserService id="userService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<s:VGroup x="0" y="0" width="100%" height="100%">
+		<s:BorderContainer top="0" width="100%" height="30" backgroundColor="#6A94BA"
+						   borderVisible="false" borderWeight="0" cornerRadius="10"
+						   horizontalCenter="0">
+			<s:BorderContainer right="-1" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			<s:BorderContainer left="0" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			
+			<s:Image x="24" y="3" source="img/bg/tab.gif"/>
+			<s:Label left="57" top="10" fontFamily="中易黑体" fontSize="14" fontWeight="bold" text="添加群发簿"/>
+		</s:BorderContainer>
+		<s:Scroller width="100%" height="100%">
+			<s:Group x="268" y="316" width="100%" height="100%">
+				<s:Group top="10" width="500" height="416" horizontalCenter="0">
+					<s:Label x="25" y="30" height="20" text="群发簿名称：" verticalAlign="middle"/>
+					<s:Label x="21" y="128" height="20" text="群发簿号码：" verticalAlign="middle"/>
+					<s:Label x="28" y="269" height="20" text="批量导入：" verticalAlign="middle"/>
+					<s:Label x="50" y="315" height="20" text="备注：" verticalAlign="middle"/>
+					<s:Label x="28" y="360" height="20" text="共享用户：" verticalAlign="middle"/>
+					<s:Label x="20" y="394" height="20" color="#0000FF" text="（当前共享）"
+							 verticalAlign="middle"/>
+					<s:TextInput id="txiName" x="105" y="28" width="200"/>
+					<s:TextInput id="txiSharedUser" x="106" y="359" width="150"/>
+					<s:TextArea id="txiNo" x="105" y="67" width="350" height="150"/>
+					<s:TextArea id="txiContent" x="106" y="301" width="350" height="50"/>
+					<s:Label x="313" y="32" color="#FF0000" fontSize="14" text="*"/>
+					<s:Label x="465" y="134" width="18" color="#FF0000" fontSize="14" text="*"/>
+					<s:Label x="105" y="225" text="多个号码以英文逗号分隔，如：13436783434,13534343467。"/>
+					<s:Label x="105" y="245" text="当前号码数量："/>
+					<s:Label id="txtNum" x="187" y="246" width="75" color="#FF0000" text="1000"/>
+					<s:Button id="btnOpenFile" x="105" y="268" label="打开文件"
+							  click="btnOpenFile_clickHandler(event)" cornerRadius="3"/>
+					<s:Button id="btnSetSharedUser" x="271" y="358" label="添加共享用户"
+							  click="btnSetSharedUser_clickHandler(event)" cornerRadius="3"/>
+					<s:Button id="btnReset" x="375" y="358" width="81" label="清空"
+							  click="btnReset_clickHandler(event)" cornerRadius="3"/>
+					<s:Label id="txtFile" x="185" y="274" width="237" color="#515151" text="文件名"/>
+					<s:Label id="txtShardUsers" x="106" y="399" width="353" color="#515151"
+							 text="张三，李四，王五"/>
+				</s:Group>
+				<s:HGroup y="445" width="200" height="33" gap="20" horizontalCenter="0">
+					<s:Button id="btnSubmit" y="495" height="25" label="确认添加" buttonMode="true"
+							  chromeColor="#7DAC08" click="btnSubmit_clickHandler(event)"
+							  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+							  horizontalCenter="-100"/>
+					<s:Button y="495" height="25" label="&lt;&lt;返回" buttonMode="true"
+							  chromeColor="#F28D21"
+							  click="dispatchEvent(new Event('Back2HomeEvent', true, false))"
+							  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+							  horizontalCenter="20"/>
+				</s:HGroup>
+			</s:Group>
+			
+		</s:Scroller>
+	</s:VGroup>
+	
+	
+</s:BorderContainer>

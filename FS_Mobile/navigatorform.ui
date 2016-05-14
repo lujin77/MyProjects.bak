@@ -1,0 +1,1044 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>NavigatorForm</class>
+ <widget class="QWidget" name="NavigatorForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1200</width>
+    <height>800</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true"/>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <item row="0" column="0" colspan="3">
+    <widget class="QFrame" name="topFrame">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>1024</width>
+       <height>91</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>91</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-image: url(:/bg/images/bg/top.png);</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="0" column="0">
+       <spacer name="horizontalSpacer_9">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>200</width>
+          <height>16</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="txtSysName">
+        <property name="font">
+         <font>
+          <family>微软雅黑</family>
+          <pointsize>20</pointsize>
+          <weight>50</weight>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(255, 255, 255);
+font: 75 9pt &quot;Agency FB&quot;;
+font: 20pt &quot;微软雅黑&quot;;
+background-image: url(:/bg/images/bg/transparent.png);
+
+</string>
+        </property>
+        <property name="text">
+         <string>系统名称</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2" colspan="3">
+       <spacer name="horizontalSpacer_8">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>356</width>
+          <height>13</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="2">
+       <spacer name="horizontalSpacer_6">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>200</width>
+          <height>14</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="3">
+       <widget class="QLabel" name="txtMoneyAlert">
+        <property name="font">
+         <font>
+          <family>幼圆</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(255, 255, 255);
+background-image: url(:/bg/images/bg/transparent.png);</string>
+        </property>
+        <property name="text">
+         <string>当前余额：</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="4">
+       <widget class="QPushButton" name="btnMoney">
+        <property name="minimumSize">
+         <size>
+          <width>70</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>70</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <family>宋体</family>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-image: url(:/bg/images/bg/transparent.png);</string>
+        </property>
+        <property name="text">
+         <string>00000</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="5">
+       <widget class="QLabel" name="txtWelcome">
+        <property name="font">
+         <font>
+          <family>幼圆</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(255, 255, 255);
+background-image: url(:/bg/images/bg/transparent.png);</string>
+        </property>
+        <property name="text">
+         <string>欢迎你：</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="6">
+       <widget class="QLabel" name="txtName">
+        <property name="font">
+         <font>
+          <family>幼圆</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(255, 255, 255);
+background-image: url(:/bg/images/bg/transparent.png);</string>
+        </property>
+        <property name="text">
+         <string>XXXX</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="7">
+       <widget class="QLabel" name="txtSplacer2">
+        <property name="font">
+         <font>
+          <family>幼圆</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(255, 255, 255);
+background-image: url(:/bg/images/bg/transparent.png);</string>
+        </property>
+        <property name="text">
+         <string>|</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="8">
+       <widget class="QPushButton" name="btnLoggout">
+        <property name="minimumSize">
+         <size>
+          <width>50</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>50</width>
+          <height>20</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-image: url(:/bg/images/bg/transparent.png);</string>
+        </property>
+        <property name="text">
+         <string>退出</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="9">
+       <widget class="QLabel" name="txtSplacer2_2">
+        <property name="font">
+         <font>
+          <family>幼圆</family>
+          <pointsize>12</pointsize>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color: rgb(255, 255, 255);
+background-image: url(:/bg/images/bg/transparent.png);</string>
+        </property>
+        <property name="text">
+         <string>|</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="10">
+       <spacer name="horizontalSpacer_3">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>50</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <spacer name="horizontalSpacer_4">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>1</width>
+       <height>91</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="3">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>1</width>
+       <height>695</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="2" column="3">
+    <spacer name="horizontalSpacer_5">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>1</width>
+       <height>1</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>214</width>
+       <height>1</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="2">
+    <spacer name="horizontalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>976</width>
+       <height>1</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="1" colspan="2">
+    <widget class="QStackedWidget" name="mainStack">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <widget class="QWidget" name="page"/>
+     <widget class="QWidget" name="page_2"/>
+    </widget>
+   </item>
+   <item row="1" column="0" rowspan="2">
+    <widget class="QFrame" name="leftFrame">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>214</width>
+       <height>698</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>214</width>
+       <height>698</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-image: url(:/border/images/bg/btnList.png);</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::NoFrame</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <property name="lineWidth">
+      <number>0</number>
+     </property>
+     <widget class="QPushButton" name="btn_ydjf">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>10</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>移动缴费</string>
+      </property>
+      <property name="statusTip">
+       <string>移动缴费</string>
+      </property>
+      <property name="whatsThis">
+       <string>移动缴费</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-image: url(:/btn_main/images/btnList/btn_ydjf.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_jfrb">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>50</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="statusTip">
+       <string>缴费日报</string>
+      </property>
+      <property name="whatsThis">
+       <string>缴费日报</string>
+      </property>
+      <property name="accessibleName">
+       <string>缴费日报</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-image: url(:/btn_main/images/btnList/btn_jfrb.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_skjs">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>90</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>售卡结算</string>
+      </property>
+      <property name="statusTip">
+       <string>售卡结算</string>
+      </property>
+      <property name="whatsThis">
+       <string>售卡结算</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-image: url(:/btn_main/images/btnList/btn_skjs.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_ywslcx">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>170</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>业务受理查询</string>
+      </property>
+      <property name="statusTip">
+       <string>业务受理查询</string>
+      </property>
+      <property name="whatsThis">
+       <string>业务受理查询</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">
+background-image: url(:/btn_main/images/btnList/btn_ywslcx.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_ywsl">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>130</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>业务受理</string>
+      </property>
+      <property name="statusTip">
+       <string>业务受理</string>
+      </property>
+      <property name="whatsThis">
+       <string>业务受理</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-image: url(:/btn_main/images/btnList/btn_ywsl.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_xgmm">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>290</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>密码修改</string>
+      </property>
+      <property name="statusTip">
+       <string>密码修改</string>
+      </property>
+      <property name="whatsThis">
+       <string>密码修改</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">
+background-image: url(:/btn_main/images/btnList/btn_xgmm.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_yhxxxg">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>290</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>用户信息修改</string>
+      </property>
+      <property name="statusTip">
+       <string>用户信息修改</string>
+      </property>
+      <property name="whatsThis">
+       <string>用户信息修改</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-image: url(:/btn_main/images/btnList/btn_yhxxxg.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_zxgg">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>330</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>最新公告</string>
+      </property>
+      <property name="statusTip">
+       <string>最新公告</string>
+      </property>
+      <property name="whatsThis">
+       <string>最新公告</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">
+background-image: url(:/btn_main/images/btnList/btn_zxgg.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_drjjtj">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>370</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>当日交易统计</string>
+      </property>
+      <property name="statusTip">
+       <string>当日交易统计</string>
+      </property>
+      <property name="whatsThis">
+       <string>当日交易统计</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-image: url(:/btn_main/images/btnList/btn_drjytj.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_gszh">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>330</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>公司账户</string>
+      </property>
+      <property name="statusTip">
+       <string>公司账户</string>
+      </property>
+      <property name="whatsThis">
+       <string>公司账户</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-image: url(:/btn_main/images/btnList/btn_gszh.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_yxcz">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>410</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>购买Q币</string>
+      </property>
+      <property name="statusTip">
+       <string>购买Q币</string>
+      </property>
+      <property name="whatsThis">
+       <string>购买Q币</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-image: url(:/btn_main/images/btnList/btn_gmqb.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_gmjp">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>450</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>购买机票</string>
+      </property>
+      <property name="statusTip">
+       <string>购买机票</string>
+      </property>
+      <property name="whatsThis">
+       <string>购买机票</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-image: url(:/btn_main/images/btnList/btn_gmjp.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_gmczk">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>410</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>购买充值卡</string>
+      </property>
+      <property name="statusTip">
+       <string>购买充值卡</string>
+      </property>
+      <property name="whatsThis">
+       <string>购买充值卡</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-image: url(:/btn_main/images/btnList/btn_gmczk.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_drjymx">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>370</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>当日交易明细</string>
+      </property>
+      <property name="statusTip">
+       <string>当日交易明细</string>
+      </property>
+      <property name="whatsThis">
+       <string>当日交易明细</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-image: url(:/btn_main/images/btnList/btn_drjymx.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_ydxh">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>10</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>移动选号</string>
+      </property>
+      <property name="statusTip">
+       <string>移动选号</string>
+      </property>
+      <property name="whatsThis">
+       <string>移动选号</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-image: url(:/btn_main/images/btnList/btn_ydxh.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_dbfjs">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>210</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="contextMenuPolicy">
+       <enum>Qt::NoContextMenu</enum>
+      </property>
+      <property name="toolTip">
+       <string>代办费结算</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-image: url(:/btn_main/images/btnList/btn_dbfjs.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_skcx">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>50</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>售卡查询</string>
+      </property>
+      <property name="statusTip">
+       <string>售卡查询</string>
+      </property>
+      <property name="whatsThis">
+       <string>售卡查询</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-image: url(:/btn_main/images/btnList/btn_skcx.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_jfyb">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>90</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="statusTip">
+       <string>缴费月报</string>
+      </property>
+      <property name="whatsThis">
+       <string>缴费月报</string>
+      </property>
+      <property name="accessibleName">
+       <string>缴费月报</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-image: url(:/btn_main/images/btnList/btn_jfyb.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_kcxk">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>130</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>库存小卡</string>
+      </property>
+      <property name="statusTip">
+       <string>库存小卡</string>
+      </property>
+      <property name="whatsThis">
+       <string>库存小卡</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-image: url(:/btn_main/images/btnList/btn_kcxk.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_xkkk">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>170</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>小卡扣款</string>
+      </property>
+      <property name="statusTip">
+       <string>小卡扣款</string>
+      </property>
+      <property name="whatsThis">
+       <string>小卡扣款</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-image: url(:/btn_main/images/btnList/btn_xkkk.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_tczfcx">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>210</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>套餐缴费查询</string>
+      </property>
+      <property name="statusTip">
+       <string>套餐缴费查询</string>
+      </property>
+      <property name="whatsThis">
+       <string>套餐缴费查询</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">
+background-image: url(:/btn_main/images/btnList/btn_tczf.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_zhye">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>250</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>账户余额</string>
+      </property>
+      <property name="statusTip">
+       <string>账户余额</string>
+      </property>
+      <property name="whatsThis">
+       <string>账户余额</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-image: url(:/btn_main/images/btnList/btn_zhye.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_zhcz">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>250</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>账户充值</string>
+      </property>
+      <property name="statusTip">
+       <string>账户充值</string>
+      </property>
+      <property name="whatsThis">
+       <string>账户充值</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">
+background-image: url(:/btn_main/images/btnList/btn_zhcz.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_kdjf">
+      <property name="geometry">
+       <rect>
+        <x>110</x>
+        <y>450</y>
+        <width>89</width>
+        <height>35</height>
+       </rect>
+      </property>
+      <property name="toolTip">
+       <string>购买机票</string>
+      </property>
+      <property name="statusTip">
+       <string>购买机票</string>
+      </property>
+      <property name="whatsThis">
+       <string>购买机票</string>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-image: url(:/btn_main/images/btnList/btn_kdjf.png);</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+     <widget class="QGroupBox" name="groupBox">
+      <property name="geometry">
+       <rect>
+        <x>20</x>
+        <y>490</y>
+        <width>175</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background-image: url(:/bg/images/bg/transparent.png);</string>
+      </property>
+      <property name="title">
+       <string>客服电话</string>
+      </property>
+      <widget class="QLabel" name="txtTel1">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>151</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>客服电话1</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="txtTel2">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>40</y>
+         <width>151</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>客服电话1</string>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

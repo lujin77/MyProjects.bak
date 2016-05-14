@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:utilservice="services.utilservice.*"
+				   width="100%" height="100%" backgroundColor="#F1F4F8" borderVisible="true"
+				   borderWeight="1" cornerRadius="10" creationComplete="init();"
+				   dropShadowVisible="true">
+	<fx:Declarations>
+		<s:CallResponder id="InsertResult"/>
+		<utilservice:UtilService id="utilService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entity.AuthenticationInfo;
+			import entity.User;
+			
+			import mx.controls.Alert;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.events.CloseEvent;
+			
+			public function init():void {
+				reset();
+			}
+			
+			protected function reset():void {
+				txiName.text = "";
+				txiMobile.text = "";
+				txiTel.text = "";
+				txiEmail.text = "";
+				dfdBirthday.text = "";
+				txiCompany.text = "";
+				txiAddr.text = "";
+				txiContent.text = "";
+			}
+			
+			protected function validate():Boolean {
+				if (txiName.text == "") {
+					Alert.show("姓名不能为空!");
+					txiName.setFocus();
+					return false;
+				}
+				
+				if (txiMobile.text == "") {
+					Alert.show("手机号不能为空!");
+					txiMobile.setFocus();
+					return false;
+				}
+				
+				return true;
+			}
+			
+			protected function getValuse():String {
+				var sql:String = "newid()";
+				sql += ",'" + User.id+"' ";
+				sql += ",'" + txiName.text+"' ";
+				sql += ",'" + txiMobile.text+"' ";
+					
+				if (txiTel.text == "") {
+					sql += ",NULL"
+				} else {
+					sql += ",'" + txiTel.text+"' ";
+				}
+				
+				if (txiEmail.text == "") {
+					sql += ",NULL"
+				} else {
+					sql += ",'" + txiEmail.text+"' ";
+				}
+				
+				if (dfdBirthday.text == "") {
+					sql += ",NULL"
+				} else {
+					sql += ",'" + dfdBirthday.text+"' ";
+				}
+				
+				if (txiCompany.text == "") {
+					sql += ",NULL"
+				} else {
+					sql += ",'" + txiCompany.text+"' ";
+				}
+				
+				if (txiAddr.text == "") {
+					sql += ",NULL"
+				} else { 
+					sql += ",'" + txiAddr.text+"' ";
+				}
+				
+				if (txiContent.text == "") {
+					sql += ",NULL"
+				} else {
+					sql += ",'" + txiContent.text+"' ";
+				}
+				
+				return sql;
+					
+			}
+			
+			protected function btnSubmit_clickHandler(event:MouseEvent):void
+			{
+				if (!validate()) return;
+				var values:String = getValuse();
+				//Alert.show(values)
+				Alert.show("确定要添加联系人吗？","提示",Alert.YES|Alert.NO,null,function(event:CloseEvent):void {
+					if(event.detail == Alert.YES) {
+						InsertResult.token = utilService.Insert(User.id, User.userid, "通信录", values, AuthenticationInfo.token);
+						InsertResult.addEventListener(ResultEvent.RESULT,submit_handler);
+						InsertResult.addEventListener(FaultEvent.FAULT,onFault)
+					}		
+				})
+
+				
+			}
+			
+			internal function submit_handler(evt:ResultEvent):void
+			{
+				var result:String = evt.result as String;
+				if (result == "插入成功！") {
+					Alert.show("添加联系人成功！")
+					reset();
+				} else {
+					Alert.show("添加联系人失败！\n"+result);
+				}
+					
+			}
+			
+			internal function onFault(evt:FaultEvent):void
+			{
+				Alert.show(evt.fault.faultDetail.toString());
+			}
+			
+		]]>
+	</fx:Script>
+	<s:VGroup x="0" y="0" width="100%" height="100%">
+		<s:BorderContainer top="0" width="100%" height="30" backgroundColor="#6A94BA"
+						   borderVisible="false" borderWeight="0" cornerRadius="10"
+						   horizontalCenter="0">
+			<s:BorderContainer right="-1" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			<s:BorderContainer left="0" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			
+			<s:Image x="24" y="3" source="img/bg/tab.gif"/>
+			<s:Label left="57" top="10" fontFamily="中易黑体" fontSize="14" fontWeight="bold" text="添加联系人"/>
+		</s:BorderContainer>
+		<s:Scroller width="100%" height="100%">
+			<s:Group x="268" y="316" width="100%" height="100%">
+				<s:Form top="10" width="500" height="469" horizontalCenter="0">
+					<s:layout>
+						<s:FormLayout gap="-5"/>
+					</s:layout>
+					<s:FormItem label="姓名:">
+						<s:TextInput id="txiName"/>
+					</s:FormItem>
+					<s:FormItem label="手机号:">
+						<s:TextInput id="txiMobile"/>
+					</s:FormItem>
+					<s:FormItem label="固定电话:">
+						<s:TextInput id="txiTel"/>
+					</s:FormItem>
+					<s:FormItem label="邮箱:">
+						<s:TextInput id="txiEmail"/>
+					</s:FormItem>
+					<s:FormItem label="生日:">
+						<mx:DateField id="dfdBirthday" x="227" y="10" dayNames="['日','一','二','三','四','五','六']"
+									  fontSize="12" formatString="YYYY-MM-DD" yearNavigationEnabled="true"
+									  monthNames="['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月']"/>
+					</s:FormItem>
+					<s:FormItem width="350" label="单位:">
+						<s:TextInput id="txiCompany" width="250"/>
+					</s:FormItem>
+					<s:FormItem width="350" label="地址:">
+						<s:TextInput id="txiAddr" width="250"/>
+					</s:FormItem>
+					<!--
+					<s:FormItem label="所属组:">
+						<s:Button label="设置" cornerRadius="3"/>
+					</s:FormItem>
+					<s:FormItem width="480" label="(选中)" color="#0C00FF">
+						<s:Label width="400" height="20" color="#000000" text="组1,组2,组3..."/>
+					</s:FormItem>
+					-->
+					<s:FormItem label="备注:">
+						<s:TextArea id="txiContent" width="300" height="100"/>
+					</s:FormItem>
+				</s:Form>
+				<s:HGroup y="487" width="200" height="50" gap="20" horizontalCenter="0"
+						  textAlign="left">
+					<s:Button id="btnSubmit" y="495" height="25" label="确认添加" buttonMode="true"
+							  chromeColor="#7DAC08" click="btnSubmit_clickHandler(event)"
+							  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+							  horizontalCenter="-100"/>
+					<s:Button y="495" height="25" label="&lt;&lt;返回" buttonMode="true"
+							  chromeColor="#F28D21"
+							  click="dispatchEvent(new Event('Back2HomeEvent', true, false))"
+							  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+							  horizontalCenter="20"/>
+				</s:HGroup>
+				<mx:HRule y="549" width="500" horizontalCenter="0"/>
+				<s:Group y="560" width="500" height="108" horizontalCenter="0">
+					<s:Label x="45" y="13" height="20" text="导入分组:"/>
+					<s:Label x="45" y="56" height="20" text="批量导入:"/>
+					<s:ComboBox x="104" y="10"/>
+					<s:Button x="107" y="51" label="选择文件" cornerRadius="3"/>
+					<s:Label x="193" y="52" width="188" height="20" color="#565656" text="未选择文件名"
+							 verticalAlign="middle"/>
+					<s:Image x="107" y="82" source="img/navigator/pic8.gif"/>
+					<mx:LinkButton x="125" y="78" label="下载CSV模板文件" color="#1800FF"/>
+				</s:Group>
+				<s:Button y="672" height="25" label="确认导入" buttonMode="true" chromeColor="#7DAC08"
+						  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+						  horizontalCenter="0"/>
+			</s:Group>
+			
+		</s:Scroller>
+	</s:VGroup>
+	
+	
+</s:BorderContainer>

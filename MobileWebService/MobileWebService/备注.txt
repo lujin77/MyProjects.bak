@@ -1,0 +1,2 @@
+﻿web service发布地址统一
+http://locahost/MobileWebService/xxx.asmx

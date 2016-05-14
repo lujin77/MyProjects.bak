@@ -1,0 +1,86 @@
+<Configuration>
+  <RecentFiles>
+    <RecentFiles>
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:PayGameItem.cs" caret="630" fromTop="23" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:PayPublicTelItem.cs" caret="631" fromTop="19" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:Notice.cs" caret="0" fromTop="0" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:NoticeItem.cs" caret="0" fromTop="0" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:PayWithListItem.cs" caret="0" fromTop="0" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:PayWithListResult.cs" caret="0" fromTop="0" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:PhoneNumberBelong.cs" caret="0" fromTop="0" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:ReturnedItem.cs" caret="0" fromTop="0" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:ReturnInfoItem.cs" caret="0" fromTop="0" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:ReturnProportion.cs" caret="0" fromTop="0" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:SystemFunction.cs" caret="0" fromTop="0" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:TableStatistics.cs" caret="0" fromTop="0" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:Transaction.cs" caret="0" fromTop="0" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:Worker.cs" caret="0" fromTop="0" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:ReturnInfo.cs" caret="0" fromTop="0" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:AcountPaymentItem.cs" caret="619" fromTop="22" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:CompanyAccount.cs" caret="169" fromTop="9" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:CompanyInfo.cs" caret="0" fromTop="0" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:PaymentItem.cs" caret="0" fromTop="0" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:PayInternetItem.cs" caret="526" fromTop="16" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Validater/f:SessionValidater.cs" caret="6330" fromTop="15" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Properties/f:AssemblyInfo.cs" caret="0" fromTop="0" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:PaymentFunctionWebService.asmx.cs" caret="157963" fromTop="8" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:MiniCardItem.cs" caret="495" fromTop="15" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:PayMiniCardItem.cs" caret="673" fromTop="22" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:PhoneNoList.cs" caret="426" fromTop="17" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:CardService.cs" caret="164" fromTop="5" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:Web.config" caret="2530" fromTop="18" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/d:Entity/f:PhoneNoItem.cs" caret="432" fromTop="10" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="114661" fromTop="15" />
+    </RecentFiles>
+    <RecentEdits>
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="101257" fromTop="26" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="101337" fromTop="8" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="101855" fromTop="18" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="102437" fromTop="20" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="102605" fromTop="24" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="104184" fromTop="21" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="104352" fromTop="25" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="104501" fromTop="29" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="112738" fromTop="11" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="112866" fromTop="15" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="110057" fromTop="8" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:Web.config" caret="2530" fromTop="18" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:Web.config" caret="2729" fromTop="20" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:Web.config" caret="2933" fromTop="24" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="86473" fromTop="14" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="86748" fromTop="31" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="82992" fromTop="22" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="83347" fromTop="25" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="83749" fromTop="12" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="84775" fromTop="17" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="85037" fromTop="21" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="93308" fromTop="16" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="95216" fromTop="9" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="102871" fromTop="18" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="104143" fromTop="25" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="103209" fromTop="15" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="103505" fromTop="22" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="103839" fromTop="27" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="42658" fromTop="12" />
+      <File id="6A787E97-4867-449C-84E4-872561F4F8B7/f:BusinessFunctionWebService.asmx.cs" caret="42767" fromTop="17" />
+    </RecentEdits>
+  </RecentFiles>
+  <NAntValidationSettings>
+    <NAntPath value="" />
+  </NAntValidationSettings>
+  <UnitTestRunner>
+    <Providers />
+  </UnitTestRunner>
+  <UnitTestRunnerNUnit>
+    <NUnitInstallDir IsNull="False">
+    </NUnitInstallDir>
+    <UseAddins>Never</UseAddins>
+  </UnitTestRunnerNUnit>
+  <SettingsComponent>
+    <string />
+    <integer />
+    <boolean>
+      <setting name="SolutionAnalysisEnabled">False</setting>
+    </boolean>
+  </SettingsComponent>
+</Configuration>

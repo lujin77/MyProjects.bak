@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:utilservice="services.utilservice.*"
+		 width="500" height="500" fontSize="14" title="编辑联系人">
+	
+	<fx:Script>
+		<![CDATA[
+			import entity.AuthenticationInfo;
+			import entity.User;
+			
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			private var ItemID:String;
+			
+			public function init(id:String, name:String, Mobile:String, tel:String, email:String
+											  , birthday:String, Company:String, addr:String, content:String):void {
+				ItemID = id;
+				txiName.text = name;
+				txiMobile.text = Mobile;
+				txiTel.text = tel;
+				txiEmail.text = email;
+				dfdBirthday.text = birthday;
+				txiCompany.text = Company;
+				txiAddr.text = addr;
+				txiContent.text = content;
+			}
+			
+			protected function validate():Boolean {
+				if (txiName.text == "") {
+					Alert.show("姓名不能为空!");
+					txiName.setFocus();
+					return false;
+				}
+				
+				if (txiMobile.text == "") {
+					Alert.show("手机号不能为空!");
+					txiMobile.setFocus();
+					return false;
+				}
+				
+				return true;
+			}
+			
+			protected function btnSubmit_clickHandler(event:MouseEvent):void
+			{
+				if (!validate()) return;
+				var updateSQL:String = " 姓名='"+txiName.text+"', 手机号='"+txiMobile.text+"', 固定电话='"+txiTel.text+"'," +
+					"Email='"+txiEmail.text+"', 生日='"+dfdBirthday.text+"', 单位='"+txiCompany.text+"'," +
+					"地址='"+txiAddr.text+"', 备注='"+txiContent.text+"' ";
+				var condition:String = " id='"+ItemID+"' "
+				UpdateResult.token = utilService.Update(User.id, User.userid, "[QXT_platform].[dbo].[通信录]", updateSQL, condition, AuthenticationInfo.token);
+				UpdateResult.addEventListener(ResultEvent.RESULT,submit_handler);
+				UpdateResult.addEventListener(FaultEvent.FAULT,onFault)
+				
+			}
+			
+			protected function btnClose_clickHandler(event:MouseEvent):void
+			{
+				PopUpManager.removePopUp(this);
+			}
+			
+			protected function submit_handler(event:ResultEvent):void
+			{
+				var result:String = event.result as String;
+				Alert.show(result);
+			}
+			
+			internal function onFault(evt:FaultEvent):void
+			{
+				Alert.show(evt.fault.faultDetail.toString());
+			}
+			
+			
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:CallResponder id="UpdateResult"/>
+		<utilservice:UtilService id="utilService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<s:Form top="10" width="500" height="407" horizontalCenter="0">
+		<s:layout>
+			<s:FormLayout gap="-5"/>
+		</s:layout>
+		<s:FormItem label="姓名:">
+			<s:TextInput id="txiName"/>
+		</s:FormItem>
+		<s:FormItem label="手机号:">
+			<s:TextInput id="txiMobile"/>
+		</s:FormItem>
+		<s:FormItem label="固定电话:">
+			<s:TextInput id="txiTel"/>
+		</s:FormItem>
+		<s:FormItem label="邮箱:">
+			<s:TextInput id="txiEmail"/>
+		</s:FormItem>
+		<s:FormItem label="生日:">
+			<mx:DateField id="dfdBirthday" x="227" y="10" dayNames="['日','一','二','三','四','五','六']"
+						  fontSize="12" formatString="YYYY-MM-DD" yearNavigationEnabled="true"
+						  monthNames="['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月']"/>
+		</s:FormItem>
+		<s:FormItem width="350" label="单位:">
+			<s:TextInput id="txiCompany" width="250"/>
+		</s:FormItem>
+		<s:FormItem width="350" label="地址:">
+			<s:TextInput id="txiAddr" width="250"/>
+		</s:FormItem>
+		<s:FormItem label="备注:">
+			<s:TextArea id="txiContent" width="300" height="100"/>
+		</s:FormItem>
+	</s:Form>
+	<s:HGroup y="420" width="200" height="31" gap="20" horizontalCenter="0"
+			  textAlign="left">
+		<s:Button id="btnSubmit" y="495" height="25" label="修改" buttonMode="true"
+				  chromeColor="#7DAC08" click="btnSubmit_clickHandler(event)"
+				  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+				  horizontalCenter="-100"/>
+		<s:Button id="btnClose" y="495" height="25" label="&lt;&lt;返回" buttonMode="true"
+				  chromeColor="#F28D21"
+				  click="btnClose_clickHandler(event)" color="#FFFFFF"
+				  cornerRadius="3" fontSize="14" fontWeight="bold" horizontalCenter="20"/>
+	</s:HGroup>
+</s:Panel>

@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<publishData>
+  <publishProfile publishUrl="localhost" deleteExistingFiles="False" ftpAnonymousLogin="False" ftpPassiveMode="True" msdeploySite="ClientService" msdeploySiteID="" msdeployRemoteSitePhysicalPath="" msdeployAllowUntrustedCertificate="True" msdeploySkipExtraFilesOnServer="True" msdeployMarkAsApp="False" profileName="配置文件1" publishMethod="MSDeploy" replaceMatchingFiles="True" userName="yndx" savePWD="True" userPWD="AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAZ+FMH4j5g0yStZn/M8+mqAAAAAACAAAAAAAQZgAAAAEAACAAAABYx2P5fqk0TYIuKcKTTkUe/cBw3KadVcGODELG3Min7QAAAAAOgAAAAAIAACAAAAA04A52+BMB08YQXmK+FUlGOCoZz8AwDJHP2QT7CdCnyhAAAAApBiaApzReOkwe3h6A3PY0QAAAAFCm1a6qubjqKpUvmxok0p2copOJX2jh4BKCUwKZ3/r7Ey9ojpf4DF/ZWdi3idCYik5uQHIGbPHyBiIxkmwfgf0=" SelectedForPublish="True">
+    <file relUrl="BusinessFunctionWebService.asmx" publishTime="11/10/2011 16:42:23" />
+    <file relUrl="PaymentFunctionWebService.asmx" publishTime="10/13/2011 22:43:09" />
+    <file relUrl="UtilFunctionWebService.asmx" publishTime="10/13/2011 22:43:09" />
+    <file relUrl="Web.config" publishTime="12/20/2011 17:34:50" />
+    <file relUrl="UserFunctionWebService.asmx" publishTime="10/13/2011 22:43:09" />
+    <file relUrl="bin/MobileWebService.pdb" publishTime="12/20/2011 17:34:48" />
+    <file relUrl="bin/MobileWebService.dll" publishTime="12/20/2011 17:34:49" />
+    <file relUrl="备注.txt" publishTime="10/13/2011 22:43:09" />
+  </publishProfile>
+  <publishProfile publishUrl="localhost:2555" deleteExistingFiles="False" ftpAnonymousLogin="False" ftpPassiveMode="True" msdeploySite="WebService" msdeploySiteID="" msdeployRemoteSitePhysicalPath="" msdeployAllowUntrustedCertificate="False" msdeploySkipExtraFilesOnServer="True" msdeployMarkAsApp="False" profileName="配置文件2" publishMethod="MSDeploy" replaceMatchingFiles="True" userName="" savePWD="False" userPWD="" SelectedForPublish="False" />
+</publishData>

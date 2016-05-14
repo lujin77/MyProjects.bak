@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:userservice="services.userservice.*"
+				   width="100%" height="100%" backgroundColor="#F1F4F8" borderVisible="true"
+				   borderWeight="1" cornerRadius="10" creationComplete="init()"
+				   dropShadowVisible="true">
+	<fx:Declarations>
+		<s:CallResponder id="UpdateSignResult"/>
+		<userservice:UserService id="userService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<!--
+		<s:WebService id="userService" showBusyCursor="true"  wsdl="http://localhost:8003/UserService.asmx?WSDL">
+			<s:operation name="UpdateSign" resultFormat="object" result="onResult(event)" fault="onFault(event)">
+				<s:request>
+					<id>{User.id}</id>
+					<sign>{txiSign.text}</sign>
+				</s:request>
+			</s:operation>
+		</s:WebService>
+		-->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entity.User;
+			import entity.AuthenticationInfo;
+			import mx.controls.Alert;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			public function init():void {
+				txiSign.text = User.sms_sign;
+			}
+			
+			internal function onFault(evt:FaultEvent):void
+			{
+				Alert.show(evt.fault.faultDetail.toString());
+			}
+			
+			internal function onResult(evt:ResultEvent):void
+			{
+				var result:String = evt.result.toString();
+				if (result == "修改签名成功！") {
+					User.sms_sign = txiSign.text;
+				}
+				Alert.show(result);
+			}
+			
+			
+			protected function btnSubmit_clickHandler(event:MouseEvent):void
+			{
+				// TODO Auto-generated method stub
+				if (txiSign.text.length > 20) {
+					Alert.show("签名最多只能10个字")
+					return
+				}
+				
+				//userService.UpdateSign.send();
+				UpdateSignResult.token = userService.UpdateSign(User.id, txiSign.text, AuthenticationInfo.token);
+				UpdateSignResult.addEventListener(ResultEvent.RESULT,onResult);
+				UpdateSignResult.addEventListener(FaultEvent.FAULT,onFault);
+			}
+			
+			
+			
+		]]>
+	</fx:Script>
+	
+	<s:VGroup x="0" y="0" width="100%" height="100%">
+		<s:BorderContainer top="0" width="100%" height="30" backgroundColor="#6A94BA"
+						   borderVisible="false" borderWeight="0" cornerRadius="10"
+						   horizontalCenter="0">
+			<s:BorderContainer right="-1" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			<s:BorderContainer left="0" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			
+			<s:Image x="24" y="3" source="img/bg/tab.gif"/>
+			<s:Label left="65" top="10" fontFamily="中易黑体" fontSize="14" fontWeight="bold" text="修改签名"/>
+		</s:BorderContainer>
+		<s:Scroller width="100%" height="100%">
+			<s:Group x="268" y="316" width="100%" height="100%">
+				<s:Form top="10" width="500" height="62" horizontalCenter="0">
+					<s:FormItem label="短信签名：">
+						<s:helpContent>
+							<s:VGroup>
+								<s:Label text=" 10个字以内"></s:Label>
+							</s:VGroup>
+						</s:helpContent>
+						<s:TextInput id="txiSign" width="200"/>
+					</s:FormItem>
+				</s:Form>
+				<s:HGroup y="80" width="200" height="50" gap="20" horizontalCenter="0">
+					<s:Button id="btnSubmit" y="495" height="25" label="确认修改" buttonMode="true"
+							  chromeColor="#7DAC08" click="btnSubmit_clickHandler(event)"
+							  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+							  horizontalCenter="-100"/>
+					<s:Button y="495" height="25" label="重填" buttonMode="true" chromeColor="#F28D21"
+							  click="init()"
+							  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+							  horizontalCenter="20"/>
+				</s:HGroup>
+			</s:Group>
+			
+		</s:Scroller>
+	</s:VGroup>
+	
+	
+</s:BorderContainer>

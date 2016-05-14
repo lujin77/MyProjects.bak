@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:userservice="services.userservice.*"
+				   width="100%" height="100%" backgroundColor="#F1F4F8" borderVisible="true"
+				   borderWeight="1" cornerRadius="10" dropShadowVisible="true">
+	<fx:Declarations>
+		<s:CallResponder id="UpdatePswResult"/>
+		<userservice:UserService id="userService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<!--
+		<s:WebService id="userService" showBusyCursor="true"  wsdl="http://localhost:8003/UserService.asmx?WSDL">
+			<s:operation name="UpdatePsw" resultFormat="object" result="onResult(event)" fault="onFault(event)">
+				<s:request>
+					<id>{User.id}</id>
+					<userid>{User.userid}</userid>
+					<psw>{txiNewPsw.text}</psw>
+				</s:request>
+			</s:operation>
+		</s:WebService>
+		-->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entity.User;
+			import entity.AuthenticationInfo;
+			import mx.controls.Alert;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			public function init():void {
+				txiOldPsw.text = "";
+				txiNewPsw.text = "";
+				txiReNewPsw.text = "";
+			}
+			
+			internal function onFault(evt:FaultEvent):void
+			{
+				Alert.show(evt.fault.faultDetail.toString());
+			}
+			
+			internal function onResult(evt:ResultEvent):void
+			{
+				var result:String = evt.result.toString();
+				if (result == "密码修改成功！") {
+					User.psw = txiNewPsw.text;
+				}
+				Alert.show(result);
+			}
+			
+			
+			protected function btnSubmit_clickHandler(event:MouseEvent):void
+			{
+				if (txiOldPsw.text == ""){
+					Alert.show("旧密码不能为空")
+					return
+				}
+				if (txiOldPsw.text != User.psw){
+					Alert.show("旧密码输入错误")
+					return
+				}
+				if (txiNewPsw.text == ""){
+					Alert.show("新密码不能为空")
+					return
+				}
+				if (txiReNewPsw.text == ""){
+					Alert.show("重新输入新密码不能为空")
+					return
+				}
+				if (txiNewPsw.text != txiReNewPsw.text){
+					Alert.show("两次输入的新密码不一致")
+					return
+				}
+				
+				//userService.UpdatePsw.send()
+				UpdatePswResult.token = userService.UpdatePsw(User.id, User.userid, txiNewPsw.text, AuthenticationInfo.token);
+				UpdatePswResult.addEventListener(ResultEvent.RESULT,onResult);
+				UpdatePswResult.addEventListener(FaultEvent.FAULT,onFault);
+			}
+			
+			protected function btnReset_clickHandler(event:MouseEvent):void
+			{
+				txiOldPsw.text = "";
+				txiNewPsw.text = "";
+				txiReNewPsw.text = "";
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:VGroup x="0" y="0" width="100%" height="100%">
+		<s:BorderContainer top="0" width="100%" height="30" backgroundColor="#6A94BA"
+						   borderVisible="false" borderWeight="0" cornerRadius="10"
+						   horizontalCenter="0">
+			<s:BorderContainer right="-1" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			<s:BorderContainer left="0" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			
+			<s:Image x="24" y="3" source="img/bg/tab.gif"/>
+			<s:Label left="65" top="10" fontFamily="中易黑体" fontSize="14" fontWeight="bold" text="修改密码"/>
+		</s:BorderContainer>
+		<s:Scroller width="100%" height="100%">
+			<s:Group x="268" y="316" width="100%" height="100%">
+				<s:Form top="10" width="500" height="164" horizontalCenter="0">
+					<s:FormItem label="原密码：">
+						<s:helpContent>
+							<s:VGroup>
+								<s:Label text="原来的登录密码"></s:Label>
+							</s:VGroup>
+						</s:helpContent>
+						<s:TextInput id="txiOldPsw" displayAsPassword="true"/>
+					</s:FormItem>
+					<s:FormItem label="新密码：">
+						<s:helpContent>
+							<s:VGroup>
+								<s:Label text="要修改的密码，区分大小写"></s:Label>
+							</s:VGroup>
+						</s:helpContent>
+						<s:TextInput id="txiNewPsw" displayAsPassword="true"/>
+					</s:FormItem>
+					<s:FormItem label="重复密码：">
+						<s:helpContent>
+							<s:VGroup>
+								<s:Label text="重复输入新密码"></s:Label>
+							</s:VGroup>
+						</s:helpContent>
+						<s:TextInput id="txiReNewPsw" displayAsPassword="true"/>
+					</s:FormItem>
+				</s:Form>
+				<s:HGroup y="186" width="200" height="50" gap="20" horizontalCenter="1">
+					<s:Button id="btnSubmit" y="495" height="25" label="确认修改" buttonMode="true"
+							  chromeColor="#7DAC08" click="btnSubmit_clickHandler(event)"
+							  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+							  horizontalCenter="-100"/>
+					<s:Button id="btnReset" y="495" height="25" label="重填" buttonMode="true"
+							  chromeColor="#F28D21" click="btnReset_clickHandler(event)"
+							  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+							  horizontalCenter="20"/>
+				</s:HGroup>
+			</s:Group>
+			
+		</s:Scroller>
+	</s:VGroup>
+	
+	
+</s:BorderContainer>

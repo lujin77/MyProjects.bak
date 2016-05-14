@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:utilservice="services.utilservice.*"
+				   xmlns:userservice="services.userservice.*"
+				   width="100%" height="100%" backgroundColor="#F1F4F8" borderVisible="true"
+				   borderWeight="1" cornerRadius="10" creationComplete="firstInit()();"
+				   dropShadowVisible="true">
+	
+	<fx:Script>
+		<![CDATA[
+			import entity.AuthenticationInfo;
+			import entity.User;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.controls.List;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.events.CloseEvent;
+			import mx.events.DataGridEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			import mx.utils.StringUtil;
+			
+			import myevent.DataGridEvent;
+			
+			private var arrAllContract:ArrayCollection = new ArrayCollection();
+			private var arrSeletedContract:ArrayCollection = new ArrayCollection();
+			
+			private var arrTmpLeftSelect:ArrayCollection = new ArrayCollection();
+			private var arrTmpRightSelect:ArrayCollection = new ArrayCollection();
+			
+			public function firstInit():void 
+			{
+				adgList.addEventListener("selectRow",selectLeftHandler);
+				adgAddedList.addEventListener("selectRow",selectRightHandler);
+				init();
+			}
+			
+			private function selectLeftHandler(evt:myevent.DataGridEvent):void{
+				//Alert.show("left")
+				if(evt.isSelect){
+					//Alert.show(evt.o.id)
+					var obj:Object = new Object;
+					obj.id = evt.o.id;
+					obj.name = evt.o.name;
+					obj.index = adgList.selectedIndex;
+					for (var i:int; i < arrTmpLeftSelect.length ; ++i) {
+						if (arrTmpLeftSelect[i].id == obj.id) {
+							return;
+						}
+					}
+					arrTmpLeftSelect.addItem(obj);
+				}else{
+					for (var i:int; i < arrTmpLeftSelect.length ; ++i) {
+						if (arrTmpLeftSelect[i].id == evt.o.id) {
+							arrTmpLeftSelect.removeItemAt(i);
+							return;
+						}
+					}
+				}
+			}
+			
+			private function selectRightHandler(evt:myevent.DataGridEvent):void{
+				//Alert.show("right")
+				if(evt.isSelect){
+					//Alert.show(evt.o.id)
+					var obj:Object = new Object;
+					obj.id = evt.o.id;
+					obj.name = evt.o.name;
+					obj.index = adgAddedList.selectedIndex;
+					for (var i:int; i < arrTmpRightSelect.length ; ++i) {
+						if (arrTmpRightSelect[i].id == obj.id) {
+							return;
+						}
+					}
+					arrTmpRightSelect.addItem(obj);
+				}else{
+					for (var i:int; i < arrTmpRightSelect.length ; ++i) {
+						if (arrTmpRightSelect[i].id == evt.o.id) {
+							arrTmpRightSelect.removeItemAt(i);
+							return;
+						}
+					}
+				}
+			}
+			
+			public function init():void {
+				txiName.text = "";
+				txiCotent.text = "";
+				adgList.dataProvider = null;
+				adgAddedList.dataProvider = null;
+				getContract();
+			}
+			
+			private function getContract():void {
+				QueryResult.token = utilService.Query("0", "10000", "[QXT_platform].[dbo].[通信录]", "[姓名] desc"
+					, "id, 姓名 as name", "用户id='"+User.id+"'", AuthenticationInfo.token);
+				QueryResult.addEventListener(ResultEvent.RESULT,getContract_handler);
+				QueryResult.addEventListener(FaultEvent.FAULT,onFault)
+			}
+			
+			protected function getContract_handler(event:ResultEvent):void
+			{
+				var result:XML = XML(event.result);
+				adgList.dataProvider = null;
+				adgList.dataProvider = result.NewDataSet.Table;
+				// xml to array
+				for(var i:int=0;i < adgList.dataProvider.length;i++){
+					var obj:Object = new Object();
+					obj.id = adgList.dataProvider[i].id;
+					obj.name = adgList.dataProvider[i].name;
+					arrAllContract.addItem(obj);
+				}
+				
+				//Alert.show(arrAllContract[0].id);
+			}
+			
+			internal function onFault(evt:FaultEvent):void
+			{
+				Alert.show(evt.fault.faultDetail.toString());
+			}
+			
+			protected function btnAddAll_clickHandler(event:MouseEvent):void
+			{
+				arrSeletedContract.removeAll();
+				arrSeletedContract.addAll(arrAllContract);
+				adgAddedList.dataProvider = arrSeletedContract;
+			}
+			
+			protected function btnAdd_clickHandler(event:MouseEvent):void
+			{
+				if (arrTmpLeftSelect.length == 0) {
+					Alert.show("请先选中联系人,再添加!");
+					return;
+				}
+				
+				var same_num:int = 0;	
+//				Alert.show("tmp:"+arrTmpLeftSelect.length.toString());
+//				Alert.show("selected:"+arrSeletedContract.length.toString());
+				for (var i:int=0; i < arrTmpLeftSelect.length; ++i) {
+					var isExist:Boolean = false;
+					for (var j:int=0; j < arrSeletedContract.length; ++j) {
+						if (arrTmpLeftSelect[i].id == arrSeletedContract[j].id) {
+							isExist = true;
+						}
+					}
+					
+					if (isExist) {
+						++same_num;
+						continue;
+					} else {
+						var obj:Object = new Object();
+						obj.id = arrTmpLeftSelect[i].id;
+						obj.name = arrTmpLeftSelect[i].name;
+						arrSeletedContract.addItem(obj);
+					}
+				}
+				
+				arrTmpLeftSelect.removeAll();
+				//清空checkbox的选择
+				for (var i:int=0;i<adgList.dataProvider.length;i++){
+					adgList.indexToItemRenderer(i).document.check.selected = false;
+				}
+				
+				adgAddedList.dataProvider = arrSeletedContract;
+				
+				if (same_num > 0) {
+					Alert.show("有"+same_num+"个重复,请不要重复添加!");
+				}
+				
+//				Alert.show("after tmp:"+arrTmpLeftSelect.length.toString());
+//				Alert.show("after selected:"+arrSeletedContract.length.toString());
+				
+			}
+			
+			protected function btnRemoveAll_clickHandler(event:MouseEvent):void
+			{
+				arrSeletedContract.removeAll();
+				adgAddedList.dataProvider = arrSeletedContract;
+			}
+			
+			protected function btnRemove_clickHandler(event:MouseEvent):void
+			{
+				if (arrTmpRightSelect.length == 0) {
+					Alert.show("请先选中联系人,再移除!");
+					return;
+				}
+
+				for (var i:int=0; i < arrTmpRightSelect.length; ++i) {
+					
+					for (var j:int=0; j < arrSeletedContract.length; ++j) {
+						if (arrTmpRightSelect[i].id == arrSeletedContract[j].id) {
+							arrSeletedContract.removeItemAt(j);
+							//Alert.show("remove:"+j)
+						}
+					}
+				}
+
+				arrTmpRightSelect.removeAll();
+				
+				//清空checkbox的选择
+				for (var i:int=0;i<adgList.dataProvider.length;i++){
+					adgAddedList.indexToItemRenderer(i).document.check.selected = false;
+				}
+				
+				adgAddedList.dataProvider = arrSeletedContract;
+			}
+			
+			protected function validate():Boolean {
+				if (txiName.text == "") {
+					Alert.show("联系组名称不能为空!");
+					txiName.setFocus();
+					return false;
+				}
+				
+//				if (txiCotent.text == "") {
+//					Alert.show("备注不能为空!");
+//					txiCotent.setFocus();
+//					return false;
+//				}
+				
+				return true;
+			}
+			
+			protected function btnSubmit_clickHandler(event:MouseEvent):void
+			{
+				if (!validate()) return;
+				
+				var alertStr:String = "";
+				var contract_user_id:String = "";
+				if (arrSeletedContract.length == 0) {
+					alertStr = "还没有添加联系人，确认新建组吗？";
+				} else {
+					alertStr = "确认新建组吗？";
+					var isFirst = true;
+					for (var i:int=0;i<arrSeletedContract.length;i++){
+						if (isFirst) {
+							contract_user_id += arrSeletedContract[i].id;
+							isFirst = false;
+						} else {
+							contract_user_id += "," + arrSeletedContract[i].id;
+						}
+					}
+				}
+				//Alert.show(contract_user_id);
+				Alert.show(alertStr,"提示",Alert.YES|Alert.NO,null,function(event:CloseEvent):void {
+					if(event.detail == Alert.YES) {
+						AddGroupResult.token = userService.AddGroup(User.id, User.name, txiName.text, txiCotent.text, contract_user_id, AuthenticationInfo.token);
+						AddGroupResult.addEventListener(ResultEvent.RESULT,submit_handler);
+						AddGroupResult.addEventListener(FaultEvent.FAULT,onFault)
+					}		
+				})
+			}
+			
+			
+			internal function submit_handler(evt:ResultEvent):void
+			{
+				var result:String = evt.result as String;
+				Alert.show(result);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:CallResponder id="QueryResult"/>
+		<utilservice:UtilService id="utilService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<s:CallResponder id="AddGroupResult"/>
+		<userservice:UserService id="userService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<s:VGroup x="0" y="0" width="100%" height="100%">
+		<s:BorderContainer top="0" width="100%" height="30" backgroundColor="#6A94BA"
+						   borderVisible="false" borderWeight="0" cornerRadius="10"
+						   horizontalCenter="0">
+			<s:BorderContainer right="-1" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			<s:BorderContainer left="0" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			
+			<s:Image x="24" y="3" source="img/bg/tab.gif"/>
+			<s:Label left="56" top="10" fontFamily="中易黑体" fontSize="14" fontWeight="bold" text="新建联系组"/>
+		</s:BorderContainer>
+		<s:Scroller width="100%" height="100%">
+			<s:Group x="268" y="316" width="100%" height="100%">
+				<s:Group top="10" width="550" height="450" horizontalCenter="0">
+					<s:Label x="25" y="30" height="20" text="联系组名称：" verticalAlign="middle"/>
+					<s:Label x="60" y="79" height="20" text="备注：" verticalAlign="middle"/>
+					<s:TextInput id="txiName" x="105" y="28" width="200"/>
+					<s:TextArea id="txiCotent" x="105" y="67" width="350" height="50"/>
+					<s:Label x="313" y="32" color="#FF0000" fontSize="14" text="*"/>
+					<s:Button id="btnAddAll" x="228" y="203" label="添加全部 &gt;&gt;"
+							  click="btnAddAll_clickHandler(event)"/>
+					<s:Button id="btnAdd" x="228" y="235" width="86" label="添加 &gt;&gt;"
+							  click="btnAdd_clickHandler(event)"/>
+					<s:Button id="btnRemoveAll" x="228" y="297" width="86" label="&lt;&lt; 移除所有"
+							  click="btnRemoveAll_clickHandler(event)"/>
+					<s:Button id="btnRemove" x="228" y="328" width="86" label="&lt;&lt; 移除"
+							  click="btnRemove_clickHandler(event)"/>
+					<mx:DataGrid id="adgList" x="25" y="138" width="194" height="303" >
+						<mx:columns>
+							<mx:DataGridColumn headerText="选择" itemRenderer="view.CheckBox" width="40"/>
+							<mx:DataGridColumn dataField="name" headerText="联系人名单"/>
+						</mx:columns>
+					</mx:DataGrid>
+					<mx:DataGrid id="adgAddedList" x="326" y="138" width="194" height="304" >
+						<mx:columns>
+							<mx:DataGridColumn headerText="选择" itemRenderer="view.CheckBox" width="40"/>
+							<mx:DataGridColumn dataField="name" headerText="添加的联系人"/>
+						</mx:columns>
+					</mx:DataGrid>
+				</s:Group>
+				<s:HGroup y="469" width="200" height="32" gap="20" horizontalCenter="0">
+					<s:Button id="btnSubmit" y="495" height="25" label="确认添加" buttonMode="true"
+							  chromeColor="#7DAC08" click="btnSubmit_clickHandler(event)"
+							  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+							  horizontalCenter="-100"/>
+					<s:Button y="495" height="25" label="&lt;&lt;返回" buttonMode="true"
+							  chromeColor="#F28D21"
+							  click="dispatchEvent(new Event('Back2HomeEvent', true, false))"
+							  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+							  horizontalCenter="20"/>
+				</s:HGroup>
+			</s:Group>
+			
+		</s:Scroller>
+	</s:VGroup>
+	
+	
+</s:BorderContainer>

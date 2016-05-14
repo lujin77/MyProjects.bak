@@ -1,0 +1,61 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+
+namespace QueryService
+{
+    class ChargeInputPara
+    {
+        public ChargeInputPara(string workId,string pass,string no,int fee)
+        {
+            _callName = "charge";
+            _date = FunctionOperations.getNowTime();
+            _workId = workId;
+            _pass = pass;
+            _no = no;
+            _fee = fee;
+        }
+
+        private string _callName;
+        private string _date;//格式yyyyMMddHHmmss
+        private string _workId;
+        private string _pass;
+        private string _no;//电话号码
+        private int _fee;
+
+        
+
+        public string callName
+        {
+            get { return _callName; }
+            set { _callName = value; }
+        }
+        public string date
+        {
+            get { return _date; }
+            set { _date = value; }
+        }
+        public string pass
+        {
+            get { return _pass; }
+            set { _pass = value; }
+        }
+        public string workId
+        {
+            get { return _workId; }
+            set { _workId = value; }
+        }
+        public string no
+        {
+            get { return _no; }
+            set { _no = value; }
+        }
+        public int fee
+        {
+            get { return _fee; }
+            set { _fee = value; }
+        }
+    }
+}

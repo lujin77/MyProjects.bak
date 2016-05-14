@@ -1,0 +1,762 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   xmlns:sms="sms.*"
+			   xmlns:money="money.*"
+			   xmlns:contract="contract.*"
+			   xmlns:NoGroup="NoGroup.*"
+			   xmlns:sms_message="sms_message.*"
+			   xmlns:user="user.*"
+			   xmlns:userservice="services.userservice.*"
+			   xmlns:utilservice="services.utilservice.*"
+			   minWidth="955" minHeight="600" creationComplete="generateIdentify()">
+	
+	<fx:Style> 
+		Alert{ 
+			font-size:14; 
+		} 
+		.accHeader {
+			padding-left:20px;
+			fillColors: #FFFFFF, #FFFFFF;
+			fillAlphas: 1.0, 0.5;
+			selectedFillColors: black, black;
+		}
+	</fx:Style> 
+	
+	<fx:Script>
+		<![CDATA[
+			import entity.SMS;
+			import entity.User;
+			
+			import event.util.Back2HomeEvent;
+			
+			import form.NoticeForm;
+			import form.RegisterForm;
+			
+			import mx.controls.Alert;
+			import mx.managers.PopUpManager;
+			import mx.rpc.Responder;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			
+			import util.Singleton;
+			
+			[Bindable]
+			var user:User;
+			
+			
+			internal function onFault(evt:FaultEvent):void
+			{
+				Alert.show(evt.fault.faultDetail.toString());
+			}
+			
+			private function generateIdentify():void{  
+//				this.currentState = 'logged_user';
+//				init()
+				Security.loadPolicyFile("http://www.10086yn.net/crossdomain.xml");
+				generate.text=generateCheckCode();  
+				txiName.text = "lujin";
+				txiPsw.text = "123";
+				identify.text = generate.text;
+			}  
+			
+			private function generateCheckCode():String{  
+				//init  
+				var num:Number;  
+				var code:String;  
+				var checkCode:String="";  
+				
+				for(var i:int=0;i<5;i++){  
+					num=Math.round(Math.random()*100000);  
+					if(num%2==0){  
+						code=String.fromCharCode(48+(num%10));  
+					}else{  
+						code=String.fromCharCode(65+(num%26));  
+					}  
+					checkCode +=code;  
+				}  
+				return checkCode;  
+			}  
+			
+			//注册界面跳转事件
+			protected function init():void 
+			{
+				sendSmsForm.addEventListener("Back2HomeEvent",back2home_hanlder);
+				sendSmsForm.addEventListener("UpdateUserMoney",updateMoney_hanlder);
+				sendSmsListForm.addEventListener("Back2HomeEvent",back2home_hanlder);
+				sendSmsListForm.addEventListener("UpdateUserMoney",updateMoney_hanlder);
+				sendSmsSummaryForm.addEventListener("Back2HomeEvent",back2home_hanlder);
+				sendSmsSummaryForm.addEventListener("ChangeToSendEvent",change2send_hanlder);
+				sendSmsSummaryForm.addEventListener("UpdateUserMoney",updateMoney_hanlder);
+				sendSmsReportForm.addEventListener("Back2HomeEvent",back2home_hanlder);
+				sendSmsReplayForm.addEventListener("Back2HomeEvent",back2home_hanlder);
+				accountDetailForm.addEventListener("Back2HomeEvent",back2home_hanlder);
+				friendListForm.addEventListener("Back2HomeEvent",back2home_hanlder);
+				friendListForm.addEventListener("FriendListSendEvent",friendListSend_hanlder);
+				addFriendForm.addEventListener("Back2HomeEvent",back2home_hanlder);
+				groupManagerForm.addEventListener("Back2HomeEvent",back2home_hanlder);
+				groupManagerForm.addEventListener("FriendListSendEvent",friendListSend_hanlder);
+				addGroupForm.addEventListener("Back2HomeEvent",back2home_hanlder);
+				noGroupForm.addEventListener("Back2HomeEvent",back2home_hanlder);
+				noGroupForm.addEventListener("FriendListSendEvent",friendListSend_hanlder);
+				sharedNoGroupForm.addEventListener("Back2HomeEvent",back2home_hanlder);
+				sharedNoGroupForm.addEventListener("FriendListSendEvent",friendListSend_hanlder);
+				addNoGroupForm.addEventListener("Back2HomeEvent",back2home_hanlder);
+				smsTemplateForm.addEventListener("Back2HomeEvent",back2home_hanlder);
+				smsTemplateForm.addEventListener("ChangeToSendEvent",change2send_hanlder);
+				addSmsTemplateForm.addEventListener("Back2HomeEvent",back2home_hanlder);
+				editUserForm.addEventListener("Back2HomeEvent",back2home_hanlder);
+				editPswForm.addEventListener("Back2HomeEvent",back2home_hanlder);
+				setSmsSignForm.addEventListener("Back2HomeEvent",back2home_hanlder);
+			}
+			
+			protected function updateMoney_hanlder(event:Event):void
+			{
+				getAccountResult.token = userService.getAccount(User.userid, User.psw);
+				getAccountResult.addEventListener(ResultEvent.RESULT,updateAccount_handler);
+				getAccountResult.addEventListener(FaultEvent.FAULT,onFault);
+
+			}
+			
+			protected function updateAccount_handler(event:ResultEvent):void
+			{
+				var obj:Object = event.result;
+				User.sms = obj.sms
+				User.msms = obj.msms
+				User.reply = obj.reply
+					
+				txtSms.text = String(User.sms)
+				txtMsms.text = String(User.msms)
+				txtReply.text = String(User.reply)
+			}
+			
+			protected function back2home_hanlder(event:Event):void
+			{
+				vstMainframe.selectedChild = viewHomepage;
+			}
+			
+			protected function change2send_hanlder(event:Event):void
+			{
+				vstMainframe.selectedChild = viewSendSMS;
+				sendSmsForm.change2send(SMS.content);
+			}
+			
+			protected function friendListSend_hanlder(event:Event):void
+			{
+				vstMainframe.selectedChild = viewSendSMS;
+				sendSmsForm.change2sendByList(SMS.tels);
+			}
+			
+			protected function btnLogin_clickHandler(event:MouseEvent):void
+			{
+				if (txiName.text == "" || txiPsw.text == "" || identify.text == "")
+				{
+					Alert.show("用户名、密码、验证码不能为空！","错误")
+					return
+				}
+
+				if (identify.text.toLowerCase() == generate.text.toLowerCase()) {
+					//this.userService.Login.send();
+					LoginResult.token = userService.Login(txiName.text, txiPsw.text);
+					LoginResult.addEventListener(ResultEvent.RESULT,change2logged);
+					LoginResult.addEventListener(FaultEvent.FAULT,onFault);
+				} else {
+					Alert.show("验证码输入错误！","错误")
+				}
+				
+			}
+			
+			protected function change2logged(event:ResultEvent):void 
+			{
+				var obj:Object = event.result;
+				if (obj.id == "00000000-0000-0000-0000-000000000000") 
+				{
+					Alert.show("您输入的用户名或密码不正确！")
+				}
+				else 
+				{
+					if (obj.state == "待审核")
+					{
+						Alert.show("您的账户尚未审核通过！")
+						return
+					}
+					
+					if (obj.state == "禁用")
+					{
+						Alert.show("您的账户暂时被禁用！")
+						return
+					}
+					
+					User.id = obj.id
+					User.userid = obj.userid
+					User.psw = obj.psw
+					User.name = obj.name
+					User.sex = obj.sex
+					User.mobile = obj.mobile
+					User.tel = obj.tel
+					User.qq = obj.qq
+					User.email = obj.email
+					User.com_name = obj.com_name
+					User.com_addr = obj.com_addr
+					User.state = obj.state
+					User.sms = obj.sms
+					User.msms = obj.msms
+					User.reply = obj.reply
+					User.manager_id = obj.manager_id
+					User.sms_sign = obj.sms_sign;
+					
+					//清空登录信息
+					txiName.text = "";
+					txiPsw.text = "";
+					identify.text = "";
+						
+					this.currentState = 'logged_user';
+					init()
+					vstMainframe.selectedChild = viewHomepage;
+					
+					txtUserid.text = User.userid
+					txtSms.text = String(User.sms)
+					txtMsms.text = String(User.msms)
+					txtReply.text = String(User.reply)
+						
+					//公告相关
+					adgTable.dataProvider = null;
+					txiPage.maximum = 0;
+					txiPage.minimum = 0;
+					txiPage.value = 0;	
+					var conditon:String = checkCondition();
+					getNotice(conditon);
+					
+				}
+			}
+			
+			
+			protected function btnRegister_clickHandler(event:MouseEvent):void
+			{
+				var registerForm:RegisterForm = new RegisterForm();
+				PopUpManager.addPopUp(registerForm, this, true);    
+				PopUpManager.centerPopUp(registerForm);
+				
+			}
+			
+			protected function btnLogout_clickHandler(event:MouseEvent):void
+			{
+				User.id = ""
+				User.userid = ""
+				User.psw = ""
+				User.name = ""
+				User.sex = ""
+				User.mobile = ""
+				User.tel = ""
+				User.qq = ""
+				User.email = ""
+				User.com_name = ""
+				User.com_addr = ""
+				User.state = ""
+				User.sms = 0
+				User.msms = 0
+				User.reply = 0
+				User.manager_id = ""
+				User.sms_sign = ""
+				this.currentState = 'welcome';
+				generate.text=generateCheckCode(); 
+			}
+			
+			protected function btnLogo_clickHandler(event:MouseEvent):void
+			{
+				vstMainframe.selectedChild = viewHomepage;
+			}
+			
+			
+			
+			protected function btnSendSMS_clickHandler(event:MouseEvent):void
+			{
+				vstMainframe.selectedChild = viewSendSMS;
+				sendSmsForm.init();
+				
+			}
+			
+			protected function btnBack2Home_clickHandler(event:MouseEvent):void
+			{
+				vstMainframe.selectedChild = viewHomepage;
+			}
+			
+			protected function btnSendSMS_list_clickHandler(event:MouseEvent):void
+			{
+				vstMainframe.selectedChild = viewSendSMSList;
+				sendSmsListForm.init();
+			}
+			
+			protected function btnSmsSummary_clickHandler(event:MouseEvent):void
+			{
+				vstMainframe.selectedChild = viewSendSMS_Summary;
+				sendSmsSummaryForm.init();
+			}
+			
+			protected function btnSmsReport_clickHandler(event:MouseEvent):void
+			{
+				vstMainframe.selectedChild = viewSendSMS_Report;
+				sendSmsReportForm.init();
+			}
+			
+			protected function btnSmsReplay_clickHandler(event:MouseEvent):void
+			{
+				vstMainframe.selectedChild = viewSendSMS_Replay;
+				sendSmsReplayForm.init();
+			}
+			
+			protected function btnAccountDetail_clickHandler(event:MouseEvent):void
+			{
+				vstMainframe.selectedChild = viewAccountDetail;
+				accountDetailForm.init();
+			}
+			
+			protected function btnFriendList_clickHandler(event:MouseEvent):void
+			{
+				vstMainframe.selectedChild = viewFriendList;
+				friendListForm.init();
+			}
+			
+			protected function btnAddFriend_clickHandler(event:MouseEvent):void
+			{
+				vstMainframe.selectedChild = viewAddFriend;
+				addFriendForm.init();
+			}
+			
+			protected function btnGroupManager_clickHandler(event:MouseEvent):void
+			{
+				vstMainframe.selectedChild = viewGroupManager;
+				groupManagerForm.init();
+			}
+			
+			protected function btnAddGroup_clickHandler(event:MouseEvent):void
+			{
+				vstMainframe.selectedChild = viewAddGroup;
+				addGroupForm.init();
+			}
+			
+			protected function btnNoGroup_clickHandler(event:MouseEvent):void
+			{
+				vstMainframe.selectedChild = viewNoGroup;
+				noGroupForm.init()
+			}
+			
+			protected function btnShardedNoGroup_clickHandler(event:MouseEvent):void
+			{
+				vstMainframe.selectedChild = viewSharedNoGroup;
+				sharedNoGroupForm.init()
+			}
+			
+			protected function btnAddNoGroup_clickHandler(event:MouseEvent):void
+			{
+				vstMainframe.selectedChild = viewAddNoGroup;
+				addNoGroupForm.init();
+			}
+			
+			protected function btnSmsTemplate_clickHandler(event:MouseEvent):void
+			{
+				vstMainframe.selectedChild = viewSmsTemplate;
+				smsTemplateForm.init();
+			}
+			
+			protected function btnAddSmsTemplate_clickHandler(event:MouseEvent):void
+			{
+				vstMainframe.selectedChild = viewAddSmsTemplate;
+				addSmsTemplateForm.init();
+			}
+			
+			protected function btnEditUser_clickHandler(event:MouseEvent):void
+			{
+				vstMainframe.selectedChild = viewEditUser;
+				editUserForm.init();
+
+			}
+			
+			protected function btnEditPsw_clickHandler(event:MouseEvent):void
+			{
+				vstMainframe.selectedChild = viewEditPsw;
+				editPswForm.init();
+			}
+			
+			protected function btnSetSmsSign_clickHandler(event:MouseEvent):void
+			{
+				vstMainframe.selectedChild = viewSetSmsSign;
+				setSmsSignForm.init();
+			}
+			
+			
+			//公告相关
+			import entity.AuthenticationInfo;
+			private var page:int = 0;
+			private var count:int = 0;
+			
+			private var pageIndex:int = 0;
+			private var pageSize:int = AuthenticationInfo.PageSize;
+			private var totalPage:int = 0;
+			
+			protected function checkCondition():String {
+				var condition:String = " 是否显示=1 ";
+				return condition;	
+				
+			}
+			
+			protected function showFirstPage(event:MouseEvent):void {
+				txiPage.value = 0;
+				var conditon:String = checkCondition();
+				getNotice(conditon);
+			}
+			
+			protected function showPreviousPage(event:MouseEvent):void {
+				if (pageIndex > 0)
+					txiPage.value -= 1;
+				var conditon:String = checkCondition();
+				getNotice(conditon);
+			}
+			
+			protected function showNextPage(event:MouseEvent):void {
+				if (pageIndex < page-1)
+					txiPage.value += 1;
+				var conditon:String = checkCondition();
+				getNotice(conditon);
+			}
+			
+			protected function showLastPage(event:MouseEvent):void {
+				txiPage.value = page;
+				var conditon:String = checkCondition();
+				getNotice(conditon);
+			}
+			
+			protected function getNotice(condition:String):void {
+				
+				
+				if (txiPage.value > 0)
+					pageIndex = txiPage.value - 1;
+				else 
+					pageIndex = 0;
+				//Alert.show("condition:"+condition+"\nindex:"+pageIndex.toString()+"\nsize:"+pageSize.toString()+"\ntoken:"+AuthenticationInfo.token);
+				QueryResult.token = utilService.Query(pageIndex.toString(), pageSize.toString(), "系统公告", "权值, 发布时间 desc", "*", condition, AuthenticationInfo.token);
+				QueryResult.addEventListener(ResultEvent.RESULT,getNotice_handler);
+				QueryResult.addEventListener(FaultEvent.FAULT,onFault);	
+				
+			}
+			
+			protected function getNotice_handler(event:ResultEvent):void
+			{
+				var result:XML = XML(event.result);
+				//var result:XML = XML(event.result as String);
+				//var results:XMLList = result.children();
+				
+				adgTable.dataProvider = null;
+				adgTable.dataProvider = result.NewDataSet.Table;
+				
+				page = int(result.status.page);
+				count = int(result.status.count);
+				txiPage.value = pageIndex + 1;
+				txiPage.minimum = 1;
+				txiPage.maximum = page;
+				
+				//Alert.show("page:"+page+", count:"+count);
+				
+				txtPageTag.text = "第" + txiPage.value.toString() + "页 / 共" + page.toString() + "页，共" + count.toString() + "条记录";
+				
+			}
+
+			private function formatDate(item:Object,column:DataGridColumn):String{
+				var str:String = item[column.dataField];
+				var datetime:String = str.substr(0,10);
+				datetime += " " + str.substr(11,8);
+				return datetime;
+			}
+			
+			protected function adgTable_clickHandler(event:MouseEvent):void
+			{
+				var noticeForm:NoticeForm = new NoticeForm();
+				PopUpManager.addPopUp(noticeForm, this, true);    
+				PopUpManager.centerPopUp(noticeForm);
+				var datetime:String = adgTable.selectedItem.发布时间.substr(0,10);
+				datetime += " " + adgTable.selectedItem.发布时间.substr(11,8);
+				noticeForm.init(adgTable.selectedItem.标题, datetime, adgTable.selectedItem.内容);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:states>
+		<s:State name="welcome"/>
+		<s:State name="logged_user"/>
+		<s:State name="logged_admin"/>
+	</s:states>
+	<fx:Declarations>
+		<s:CallResponder id="LoginResult"/>
+		<userservice:UserService id="userService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<s:CallResponder id="getAccountResult"/>
+		<utilservice:UtilService id="utilService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<s:CallResponder id="QueryResult"/>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<!--
+		<s:WebService id="userService" showBusyCursor="true"  wsdl="http://220.165.8.124:7000/UserService.asmx?WSDL">
+			<s:operation name="Login" resultFormat="object" result="change2logged(event)" fault="onFault(event)">
+				<s:request>
+					<userid>{txiName.text}</userid>
+					<password>{txiPsw.text}</password>
+				</s:request>
+			</s:operation>
+		</s:WebService>
+		-->
+	</fx:Declarations>
+	
+
+	
+	<s:Image includeIn="welcome" top="0" horizontalCenter="0" source="img/bg/index_01.gif"/>
+	<s:Image includeIn="welcome" top="360" horizontalCenter="-178" source="img/bg/index_02.gif"/>
+	<s:BorderContainer includeIn="welcome" top="360" width="358" height="235"
+					   backgroundImage="@Embed('img/bg/index_03.gif')"
+					   backgroundImageFillMode="repeat" borderVisible="false"
+					   dropShadowVisible="false" horizontalCenter="324">
+		<mx:Text x="31" y="41" fontFamily="中易黑体" fontStyle="normal" fontWeight="bold" text="用户名："/>
+		<mx:Text x="31" y="76" fontFamily="中易黑体" fontWeight="bold" text="密    码："/>
+		<mx:TextInput id="txiName" x="85" y="39" width="150"/>
+		<mx:TextInput id="txiPsw" x="85" y="74" width="150" displayAsPassword="true"/>
+		<mx:Text x="31" y="113" fontFamily="中易黑体" fontWeight="bold" text="验证码："/>
+		<mx:TextInput id="identify" x="85" y="111" width="150" displayAsPassword="false"/>
+		<mx:Button id="btnLogin" x="85" y="152" width="50" label="登录" buttonMode="true"
+				   click="btnLogin_clickHandler(event)"/>
+		<mx:LinkButton id="btnRegister" x="145" y="153" label="注册新用户" buttonMode="true"
+					   click="btnRegister_clickHandler(event)" color="#0012FF" fontWeight="normal"
+					   textDecoration="underline"/>
+		<s:Image x="243" y="75" source="img/bg/lock.gif"/>
+		<s:Label id="generate" x="245" y="111" width="60" height="23" color="#505050" fontSize="14"
+				 text="验证码" verticalAlign="middle"/>
+	</s:BorderContainer>
+	
+	
+	<s:VGroup includeIn="logged_admin,logged_user" width="100%" height="100%" gap="6" horizontalCenter="0"
+			  verticalCenter="0">
+		<s:BorderContainer width="100%" height="80" backgroundImage="@Embed('img/bg/header.png')"
+						   backgroundImageFillMode="scale" dropShadowVisible="true">
+			<s:Image id="btnLogo" x="0" buttonMode="true" click="btnLogo_clickHandler(event)"
+					 source="@Embed('img/bg/logo.jpg')" verticalCenter="0"/>
+			<s:BorderContainer right="5" width="388" height="73" borderVisible="false" verticalCenter="0">
+				<s:backgroundFill>
+					<s:BitmapFill source="@Embed('img/bg/user.jpg')" fillMode="repeat"/>  
+				</s:backgroundFill>
+				<mx:LinkButton id="btnBack2Home" x="249" y="35" width="60" height="20" label="返回首页"
+							   color="#FFFFFF" cornerRadius="0" paddingLeft="0" paddingRight="0"
+							   click.logged_user="btnBack2Home_clickHandler(event)"/>
+				<mx:LinkButton id="btnLoggout" x="316" y="36" width="60" height="20" label="安全退出"
+							   color="#FFFFFF" cornerRadius="0" paddingLeft="0" paddingRight="0"
+							   click.logged_user="btnLogout_clickHandler(event)"/>
+				<s:Label x="66" y="16" color="#FFFFFF" text="用户：xxxxxx"
+						 text.logged_user="用户："/>
+				<s:Label id="txtUserid" includeIn="logged_user" x="101" y="16" width="40"
+						 color="#FFFFFF" text="{User.userid}"/>
+				<s:Label x="152" y="16" color="#FFFFFF" text="短信：xxxxxxx条"
+						 text.logged_user="短信："/>
+				<s:Label id="txtSms" includeIn="logged_user" x="188" y="16" width="40"
+						 color="#FFFFFF" text="{User.sms}"/>
+				<s:Label x="66" y="36" color="#FFFFFF" text="回复：xxx条"
+						 text.logged_user="回复："/>
+				<s:Label id="txtReply" includeIn="logged_user" x="102" y="36" width="40"
+						 color="#FFFFFF" text="{User.reply}"/>
+				<s:Label x="152" y="36" color="#FFFFFF" text="彩信：xxx条"
+						 x.logged_user="152" y.logged_user="36" text.logged_user="彩信："/>
+				<s:Label id="txtMsms" includeIn="logged_user" x="188" y="36" width="40"
+						 color="#FFFFFF" text="{User.msms}"/>
+			</s:BorderContainer>
+			
+		</s:BorderContainer>
+		<s:HGroup width="100%" height="100%">
+			<mx:Accordion width="200" height="100%" borderVisible="true" chromeColor="#175DA1"
+						  color="#FFFFFF" contentBackgroundColor="#175DA1" cornerRadius="10"
+						  dropShadowVisible="true" fontSize="18" fontWeight="bold"
+						  headerStyleName="accHeader" textAlign="center">
+				<s:NavigatorContent width="100%" height="100%" label="短信管理" fontSize="14">
+					<s:VGroup width="100%" height="100%" horizontalCenter="0" verticalCenter="0">
+						<mx:LinkButton id="btnSendSMS" width="100%" height="30" label="编辑短信发送"
+									   click="btnSendSMS_clickHandler(event)"/>
+						<mx:LinkButton id="btnSendSMS_list" width="100%" height="30" label="逐条短信发送"
+									   click.logged_user="btnSendSMS_list_clickHandler(event)"/>
+						<mx:LinkButton id="btnSmsSummary" width="100%" height="30" label="短信发送管理"
+									   click.logged_user="btnSmsSummary_clickHandler(event)"/>
+						<mx:LinkButton id="btnSmsReport" width="100%" height="30" label="短信发送报告"
+									   click.logged_user="btnSmsReport_clickHandler(event)"/>
+						<mx:LinkButton id="btnSmsReplay" width="100%" height="30" label="短信回复管理"
+									   click.logged_user="btnSmsReplay_clickHandler(event)"/>
+					</s:VGroup>
+				</s:NavigatorContent>
+				<s:NavigatorContent width="100%" height="100%" label="财务管理" fontSize="14">
+					<s:VGroup width="100%" height="100%" horizontalCenter="0" verticalCenter="0">
+						<mx:LinkButton id="btnAccountDetail" width="100%" height="30" label="财务明细查询"
+									   click.logged_user="btnAccountDetail_clickHandler(event)"/>
+					</s:VGroup>
+				</s:NavigatorContent>
+				<s:NavigatorContent width="100%" height="100%" label="通信录管理" fontSize="14">
+					<s:VGroup width="100%" height="100%" horizontalCenter="0" verticalCenter="0">
+						<mx:LinkButton id="btnFriendList" width="100%" height="30" label="联系人列表"
+									   click.logged_user="btnFriendList_clickHandler(event)"/>
+						<mx:LinkButton id="btnAddFriend" width="100%" height="30" label="新建联系人"
+									   click.logged_user="btnAddFriend_clickHandler(event)"/>
+						<mx:LinkButton id="btnGroupManager" width="100%" height="30" label="联系组管理"
+									   click.logged_user="btnGroupManager_clickHandler(event)"/>
+						<mx:LinkButton id="btnAddGroup" width="100%" height="30" label="添加联系组"
+									   click.logged_user="btnAddGroup_clickHandler(event)"/>
+					</s:VGroup>
+				</s:NavigatorContent>
+				<s:NavigatorContent width="100%" height="100%" label="群发薄管理" fontSize="14">
+					<s:VGroup width="100%" height="100%" horizontalCenter="0" verticalCenter="0">
+						<mx:LinkButton id="btnNoGroup" width="100%" height="30" label="群发簿列表"
+									   click.logged_user="btnNoGroup_clickHandler(event)"/>
+						<mx:LinkButton id="btnShardedNoGroup" width="100%" height="30" label="群发簿共享"
+									   click.logged_user="btnShardedNoGroup_clickHandler(event)"/>
+						<mx:LinkButton id="btnAddNoGroup" width="100%" height="30" label="新建群发簿"
+									   click.logged_user="btnAddNoGroup_clickHandler(event)"/>
+					</s:VGroup>
+				</s:NavigatorContent>
+				<s:NavigatorContent width="100%" height="100%" label="常用短信" fontSize="14">
+					<s:VGroup width="100%" height="100%" horizontalCenter="0" verticalCenter="0">
+						<mx:LinkButton id="btnSmsTemplate" width="100%" height="30" label="常用短信息列表"
+									   click.logged_user="btnSmsTemplate_clickHandler(event)"/>
+						<mx:LinkButton id="btnAddSmsTemplate" width="100%" height="30"
+									   label="新建常用短信息"
+									   click.logged_user="btnAddSmsTemplate_clickHandler(event)"/>
+					</s:VGroup>
+				</s:NavigatorContent>
+				<s:NavigatorContent width="100%" height="100%" label="账户管理" fontSize="14">
+					<s:VGroup width="100%" height="100%" horizontalCenter="0" verticalCenter="0">
+						<mx:LinkButton id="btnEditUser" width="100%" height="30" label="修改资料"
+									   click.logged_user="btnEditUser_clickHandler(event)"/>
+						<mx:LinkButton id="btnEditPsw" width="100%" height="30" label="修改密码"
+									   click.logged_user="btnEditPsw_clickHandler(event)"/>
+						<mx:LinkButton id="btnSetSmsSign" width="100%" height="30" label="设置签名"
+									   click.logged_user="btnSetSmsSign_clickHandler(event)"/>
+					</s:VGroup>
+				</s:NavigatorContent>
+			</mx:Accordion>
+			
+			<mx:ViewStack id="vstMainframe" width="100%" height="100%" borderVisible="false"
+						  dropShadowVisible="false" creationPolicy="all">
+				<s:NavigatorContent id="viewHomepage" width="100%" height="100%" label="首页">
+					<s:BorderContainer includeIn="logged_user" left="5" right="5" top="5" bottom="5"
+									   backgroundColor="#F1F4F8" borderVisible="true"
+									   cornerRadius="10" dropShadowVisible="true" fontSize="18"
+									   fontWeight="normal">
+						<s:HGroup top="50" width="650" height="100" gap="25" horizontalCenter="0">
+							<s:Image id="btnNavigate2SMS" buttonMode="true" click="btnSendSMS_clickHandler(event)"
+									 source="@Embed('img/navigator/sms.png')"/>
+							<s:Image buttonMode="true" click="btnSmsSummary_clickHandler(event)"
+									 source="@Embed('img/navigator/manage_sms.png')"/>
+							<s:Image buttonMode="true" click="btnFriendList_clickHandler(event)"
+									 source="@Embed('img/navigator/list.png')"/>
+							<s:Image buttonMode="true" click="btnGroupManager_clickHandler(event)"
+									 source="@Embed('img/navigator/group.png')"/>
+							<s:Image buttonMode="true" click="btnAccountDetail_clickHandler(event)"
+									 source="@Embed('img/navigator/money.png')"/>
+							<s:Image buttonMode="true" click="btnEditPsw_clickHandler(event)"
+									 source="@Embed('img/navigator/password.png')"/>
+						</s:HGroup>
+						<mx:DataGrid id="adgTable" left="30" right="30" top="170" bottom="30"
+									 click="adgTable_clickHandler(event)" fontSize="12">
+							<mx:columns>
+								<mx:DataGridColumn dataField="发布时间" headerText="发布时间" width="150" labelFunction="formatDate"/>
+								<mx:DataGridColumn dataField="公告类型" headerText="公告类型" width="100"/>
+								<mx:DataGridColumn dataField="标题" headerText="标题"/>
+							</mx:columns>
+						</mx:DataGrid>
+						<mx:HBox right="30" bottom="5" width="600" fontSize="12">
+							<mx:Spacer/>
+							<mx:Text id="txtPageTag" width="200" text="第0页 / 共0页，共0条记录"/>
+							<mx:LinkButton id="fPage" label="首页" click="showFirstPage(event)" color="#002AFF"/>
+							<mx:LinkButton id="pPage" label="上一页" click="showPreviousPage(event)" color="#002AFF"/>
+							<mx:Text width="15" text="第"/>
+							<s:NumericStepper id="txiPage"/>
+							<mx:Text width="15" text="页"/>
+							<mx:LinkButton id="nPage" label="下一页" click="showNextPage(event)" color="#002AFF"/>
+							<mx:LinkButton id="lPage" label="尾页" click="showLastPage(event)" color="#002AFF"/>
+						</mx:HBox>
+						
+						<s:BorderContainer top="0" width="100%" height="30" backgroundColor="#6A94BA"
+										   borderVisible="false" borderWeight="0" cornerRadius="10"
+										   horizontalCenter="0">
+							<s:BorderContainer right="-1" bottom="1" width="16" height="21"
+											   backgroundColor="#6A94BA" borderVisible="false">
+							</s:BorderContainer>
+							<s:BorderContainer left="0" bottom="1" width="16" height="21"
+											   backgroundColor="#6A94BA" borderVisible="false">
+							</s:BorderContainer>
+							
+							<s:Image x="24" y="3" source="img/bg/tab.gif"/>
+							<s:Label left="65" top="10" fontFamily="中易黑体" fontSize="14"
+									 fontWeight="bold" text="平台首页"/>
+						</s:BorderContainer>
+					</s:BorderContainer>
+				</s:NavigatorContent>
+				<s:NavigatorContent id="viewSendSMS" width="100%" height="100%" label="发送短信">
+					<sms:SendSMS id="sendSmsForm" includeIn="logged_user" horizontalCenter="0" verticalCenter="0"/>
+				</s:NavigatorContent>
+				<s:NavigatorContent id="viewSendSMSList" width="100%" height="100%" label="逐条发送短信">
+					<sms:SendSMS_list id="sendSmsListForm" includeIn="logged_user" horizontalCenter="0" verticalCenter="0"/>
+				</s:NavigatorContent>
+				<s:NavigatorContent id="viewSendSMS_Summary" width="100%" height="100%" label="发送短信管理">
+					<sms:SMS_Summary id="sendSmsSummaryForm" includeIn="logged_user" horizontalCenter="0" verticalCenter="0"/>
+				</s:NavigatorContent>
+				<s:NavigatorContent id="viewSendSMS_Report" width="100%" height="100%" label="发送短信报告">
+					<sms:SMS_report id="sendSmsReportForm" includeIn="logged_user" horizontalCenter="0" verticalCenter="0"/>
+				</s:NavigatorContent>
+				<s:NavigatorContent id="viewSendSMS_Replay" width="100%" height="100%" label="短信回复管理">
+					<sms:SendSMS_replay id="sendSmsReplayForm" includeIn="logged_user" horizontalCenter="0" verticalCenter="0"/>
+				</s:NavigatorContent>
+				<s:NavigatorContent id="viewAccountDetail" width="100%" height="100%" label="消费明细">
+					<money:AccountDetail id="accountDetailForm" includeIn="logged_user" horizontalCenter="0" verticalCenter="0"/>
+				</s:NavigatorContent>
+				<s:NavigatorContent id="viewFriendList" width="100%" height="100%" label="联系人列表">
+					<contract:FriendsList id="friendListForm" includeIn="logged_user" horizontalCenter="0" verticalCenter="0"/>
+				</s:NavigatorContent>
+				<s:NavigatorContent id="viewAddFriend" width="100%" height="100%" label="添加联系人">
+					<contract:AddFriends id="addFriendForm" includeIn="logged_user" horizontalCenter="0" verticalCenter="0"/>
+				</s:NavigatorContent>
+				<s:NavigatorContent id="viewGroupManager" width="100%" height="100%" label="联系组管理">
+					<contract:GroupManager id="groupManagerForm" includeIn="logged_user" horizontalCenter="0" verticalCenter="0"/>
+				</s:NavigatorContent>
+				<s:NavigatorContent id="viewAddGroup" width="100%" height="100%" label="添加联系组">
+					<contract:AddGroup id="addGroupForm" includeIn="logged_user" horizontalCenter="0" verticalCenter="0"/>
+				</s:NavigatorContent>
+				<s:NavigatorContent id="viewNoGroup" width="100%" height="100%" label="群发簿列表">
+					<NoGroup:NoList id="noGroupForm" includeIn="logged_user" horizontalCenter="0" verticalCenter="0"/>
+				</s:NavigatorContent>
+				<s:NavigatorContent id="viewSharedNoGroup" width="100%" height="100%" label="群发簿共享">
+					<NoGroup:SharedNoList id="sharedNoGroupForm" includeIn="logged_user" horizontalCenter="0" verticalCenter="0"/>
+				</s:NavigatorContent>
+				<s:NavigatorContent id="viewAddNoGroup" width="100%" height="100%" label="添加群发簿">
+					<NoGroup:AddNoList id="addNoGroupForm" includeIn="logged_user" horizontalCenter="0" verticalCenter="0"/>
+				</s:NavigatorContent>
+				<s:NavigatorContent id="viewSmsTemplate" width="100%" height="100%" label="常用短信列表">
+					<sms_message:SmsTemplate id="smsTemplateForm" includeIn="logged_user" horizontalCenter="0" verticalCenter="0"/>
+				</s:NavigatorContent>
+				<s:NavigatorContent id="viewAddSmsTemplate" width="100%" height="100%" label="添加常用短信">
+					<sms_message:AddSmsTemplate id="addSmsTemplateForm" includeIn="logged_user" horizontalCenter="0" verticalCenter="0"/>
+				</s:NavigatorContent>
+				<s:NavigatorContent id="viewEditUser" width="100%" height="100%" label="修改资料">
+					<user:EditUser id="editUserForm" includeIn="logged_user" horizontalCenter="0" verticalCenter="0"/>
+				</s:NavigatorContent>
+				<s:NavigatorContent id="viewEditPsw" width="100%" height="100%" label="修改密码">
+					<user:EditPsw id="editPswForm" includeIn="logged_user" horizontalCenter="0" verticalCenter="0"/>
+				</s:NavigatorContent>
+				<s:NavigatorContent id="viewSetSmsSign" width="100%" height="100%" label="设置短信签名">
+					<user:SetSmsSign id="setSmsSignForm" includeIn="logged_user" horizontalCenter="0" verticalCenter="0"/>
+				</s:NavigatorContent>
+			</mx:ViewStack>
+			
+		</s:HGroup>
+		<s:BorderContainer width="100%" height="30" backgroundImage="@Embed('img/bg/bottom.png')"
+						   backgroundImageFillMode="scale" dropShadowVisible="true">
+			<s:Label width="166" height="15" color="#FFFFFF" fontSize="12" horizontalCenter="0"
+					 text="Copyright @ 2013-2015 " verticalCenter="0"/>
+			
+		</s:BorderContainer>
+	</s:VGroup>
+</s:Application>

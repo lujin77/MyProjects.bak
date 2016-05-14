@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   width="100%" height="100%" backgroundColor="#F1F4F8" borderVisible="true"
+				   borderWeight="1" cornerRadius="10" dropShadowVisible="true">
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	<s:VGroup x="0" y="0" width="100%" height="100%">
+		<s:BorderContainer top="0" width="100%" height="30" backgroundColor="#6A94BA"
+						   borderVisible="false" borderWeight="0" cornerRadius="10"
+						   horizontalCenter="0">
+			<s:BorderContainer right="-1" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			<s:BorderContainer left="0" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			
+			<s:Image x="24" y="3" source="img/bg/tab.gif"/>
+			<s:Label left="57" top="10" fontFamily="中易黑体" fontSize="14" fontWeight="bold" text="添加群发簿"/>
+		</s:BorderContainer>
+		<s:Scroller width="100%" height="100%">
+			<s:Group x="268" y="316" width="100%" height="100%">
+				<s:Group top="10" width="500" height="368" horizontalCenter="0">
+					<s:Label x="25" y="30" height="20" text="群发簿名称：" verticalAlign="middle"/>
+					<s:Label x="21" y="128" height="20" text="群发簿号码：" verticalAlign="middle"/>
+					<s:Label x="28" y="269" height="20" text="批量导入：" verticalAlign="middle"/>
+					<s:Label x="28" y="303" height="20" text="共享用户：" verticalAlign="middle"/>
+					<s:Label x="20" y="337" height="20" color="#0000FF" text="（当前共享）"
+							 verticalAlign="middle"/>
+					<s:TextInput x="105" y="28" width="200"/>
+					<s:TextArea x="105" y="67" width="350" height="150"/>
+					<s:Label x="313" y="32" color="#FF0000" fontSize="14" text="*"/>
+					<s:Label x="465" y="134" width="18" color="#FF0000" fontSize="14" text="*"/>
+					<s:Label x="105" y="225" text="多个号码以英文逗号分隔，如：13436783434,13534343467。"/>
+					<s:Label x="105" y="245" text="当前号码数量："/>
+					<s:Label x="187" y="246" width="75" color="#FF0000" text="1000"/>
+					<s:Button x="105" y="268" label="打开文件" cornerRadius="3"/>
+					<s:Button x="104" y="304" label="设置共享用户" cornerRadius="3"/>
+					<s:Label x="185" y="274" width="237" color="#515151" text="文件名"/>
+					<s:Label x="106" y="342" width="353" color="#515151" text="张三，李四，王五"/>
+				</s:Group>
+				<s:HGroup y="386" width="200" height="50" gap="20" horizontalCenter="0">
+					<s:Button y="495" height="25" label="确认添加" buttonMode="true" chromeColor="#7DAC08"
+							  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+							  horizontalCenter="-100"/>
+					<s:Button y="495" height="25" label="&lt;&lt;返回" buttonMode="true"
+							  chromeColor="#F28D21"
+							  click="dispatchEvent(new Event('Back2HomeEvent', true, false))"
+							  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+							  horizontalCenter="20"/>
+				</s:HGroup>
+			</s:Group>
+			
+		</s:Scroller>
+	</s:VGroup>
+	
+	
+</s:BorderContainer>

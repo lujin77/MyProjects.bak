@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:utilservice="services.utilservice.*"
+				   width="100%" height="100%" backgroundColor="#F1F4F8" borderVisible="true"
+				   borderWeight="1" cornerRadius="10" dropShadowVisible="true" creationComplete="init()">
+	<fx:Declarations>
+		<s:CallResponder id="GetStrListResult"/>
+		<utilservice:UtilService id="utilService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<s:CallResponder id="QueryResult"/>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<mx:DateFormatter id="FD" formatString="YYYY年MM月DD日 HH时MM分SS秒" />
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import entity.AuthenticationInfo;
+			import entity.User;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			import mx.utils.StringUtil;;
+			
+			private var pageIndex:int = 0;
+			private var pageSize:int = AuthenticationInfo.PageSize;
+			private var totalPage:int = 0;
+			
+			public function init():void
+			{
+				//var condition:String = "[分组id]='" + cbxGroups.selectedItem.data + "'";
+				//GetStrListResult.token = utilService.GetStrList("群发簿", condition, "号码", AuthenticationInfo.token);			
+				reset();
+				adgTable.dataProvider = null;
+				txiPage.maximum = 0;
+				txiPage.minimum = 0;
+				txiPage.value = 0;
+			}
+			
+			internal function onFault(evt:FaultEvent):void
+			{
+				Alert.show(evt.fault.faultDetail.toString());
+			}
+			
+			protected function showFirstPage(event:MouseEvent):void {
+				
+			}
+			
+			protected function showPreviousPage(event:MouseEvent):void {
+				
+			}
+			
+			protected function showNextPage(event:MouseEvent):void {
+				
+			}
+			
+			protected function showLastPage(event:MouseEvent):void {
+				
+			}
+			
+			protected function btnSubmit_clickHandler(event:MouseEvent):void
+			{
+				var condition:String = "";
+				if (txiContent.text != "") {
+					if (condition != "")
+						condition += " and 短信内容 like '%" + txiContent.text + "%' "
+					else
+						condition = " 短信内容 like '%" + txiContent.text + "%' "
+				}
+				
+				if (dfdStart.text != "" && dfdEnd.text != "") {
+					if (ObjectUtil.dateCompare(DateField.stringToDate(dfdStart.text,"YYYY-MM-DD")
+						,DateField.stringToDate(dfdEnd.text,"YYYY-MM-DD")) == 1) {
+						Alert.show("起始日期不能大于结束日期!");
+						return;
+					}
+					if (ObjectUtil.dateCompare(DateField.stringToDate(dfdEnd.text,"YYYY-MM-DD")
+						,DateField.stringToDate(dfdStart.text,"YYYY-MM-DD")) == -1) {
+						Alert.show("结束日期不能小于起始日期!");
+						return;
+					}
+					
+				}
+				
+				if (dfdStart.text != "") {
+					if (condition != "")
+						condition += " and 提交时间>='" + dfdStart.text + "' ";
+					else
+						condition = " 提交时间>='" + dfdStart.text + "' ";
+				}
+				
+				if (dfdEnd.text != "") {
+					if (condition != "")
+						condition += " and 提交时间<='" + dfdEnd.text + "' ";
+					else
+						condition = " 提交时间<='" + dfdEnd.text + "' ";
+				}
+				
+				if (cbxState.selectedItem.label == "待处理" || cbxState.selectedItem.label == "异常") {
+					adgTable.dataProvider = null;
+					return;
+				}
+				
+				
+				var index:int = txiPage.value;
+				//Alert.show("condition:"+condition+"\nindex:"+index.toString()+"\nsize:"+pageSize.toString()+"\ntoken:"+AuthenticationInfo.token);
+				QueryResult.token = utilService.Query(index.toString(), pageSize.toString(), "短信发送", "提交时间 desc", "*", condition, AuthenticationInfo.token);
+				QueryResult.addEventListener(ResultEvent.RESULT,submit_handler);
+				QueryResult.addEventListener(FaultEvent.FAULT,onFault);
+				
+			}
+			
+			protected function submit_handler(event:ResultEvent):void
+			{
+				var result:XML = XML(event.result);
+				//var result:XML = XML(event.result as String);
+				//var results:XMLList = result.children();
+				//Alert.show(result);
+				adgTable.dataProvider = result.NewDataSet.Table;
+				
+			}
+			
+			protected function btnReset_clickHandler(event:MouseEvent):void
+			{
+				reset();
+			}
+			
+			protected function reset():void
+			{
+				txiContent.text = "";
+				dfdStart.text = "";
+				dfdEnd.text = "";
+				cbxState.selectedIndex = 0;
+			}
+			
+			
+			private function formatDate(item:Object,column:DataGridColumn):String{
+				var str:String = item[column.dataField];
+				var datetime:String = str.substr(0,10);
+				datetime += " " + str.substr(11,8);
+				return datetime;
+			}
+			
+			private function formatType(item:Object,column:DataGridColumn):String{
+				var str:String = item[column.dataField];
+				if (str == "") {
+					return "短信";
+				} else {
+					return "彩信"
+				}
+			}
+			
+			
+			private function formatState(item:Object,column:DataGridColumn):String{
+				return "完成"
+			}
+			
+			
+		]]>
+	</fx:Script>
+	
+	<s:VGroup x="0" y="0" width="100%" height="100%">
+		<s:BorderContainer top="0" width="100%" height="30" backgroundColor="#6A94BA"
+						   borderVisible="false" borderWeight="0" cornerRadius="10"
+						   horizontalCenter="0">
+			<s:BorderContainer right="-1" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			<s:BorderContainer left="0" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			
+			<s:Image x="24" y="3" source="img/bg/tab.gif"/>
+			<s:Label left="50" top="10" fontFamily="中易黑体" fontSize="14" fontWeight="bold" text="短信发送管理"/>
+		</s:BorderContainer>
+		<s:Scroller width="100%" height="100%">
+			<s:Group x="158" y="225" width="100%" height="100%">
+				<s:Label x="23" y="10" height="22" text="内容:" verticalAlign="middle"/>
+				<s:Label x="467" y="8" height="22" text="状态:" verticalAlign="middle"/>
+				<s:Label x="204" y="9" height="22" text="从:" verticalAlign="middle"/>
+				<s:Label x="332" y="10" height="22" text="到:" verticalAlign="middle"/>
+				<s:TextInput id="txiContent" x="58" y="10"/>
+				<mx:DateField id="dfdStart" x="227" y="10" dayNames="['日','一','二','三','四','五','六']"
+							  fontSize="12" formatString="YYYY-MM-DD"
+							  monthNames="['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月']"/>
+				<mx:DateField id="dfdEnd" x="355" y="10" dayNames="['日','一','二','三','四','五','六']"
+							  fontSize="12" formatString="YYYY-MM-DD"
+							  monthNames="['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月']"/>
+				<s:DropDownList id="cbxState" x="502" y="10" width="80" labelField="label">
+					<s:ArrayList>
+						<fx:Object label="不指定"/>
+						<fx:Object label="成功"/>
+						<fx:Object label="待处理"/>
+						<fx:Object label="异常"/>
+					</s:ArrayList>
+				</s:DropDownList>
+				<s:Button id="btnSubmit" x="603" y="12" width="50" label="查询"
+						  click="btnSubmit_clickHandler(event)" cornerRadius="3"/>
+				<s:Button id="btnReset" x="669" y="12" width="80" label="清空条件"
+						  click="btnReset_clickHandler(event)" cornerRadius="3"/>
+				<mx:DataGrid id="adgTable" y="49" left="20" right="20" height="395"
+							 textAlign="center" verticalAlign="middle">
+					<mx:columns>
+						<mx:DataGridColumn dataField="" headerText="" width="20" itemRenderer="view.CheckBox"/>
+						<mx:DataGridColumn dataField="短信内容" headerText="短信内容"/>
+						<mx:DataGridColumn dataField="发送号码数量" headerText="数量" width="70"/>
+						<mx:DataGridColumn dataField="提交时间" headerText="提交时间" width="150" labelFunction="formatDate"/>
+						<mx:DataGridColumn dataField="彩信文件" headerText="类型" width="70" labelFunction="formatType"/>
+						<mx:DataGridColumn dataField="状态" headerText="状态" width="70" labelFunction="formatState"/>
+					</mx:columns>
+				</mx:DataGrid>
+				
+				<mx:HBox y="452" right="20" width="600">
+					<mx:Spacer/>
+					<mx:Text width="200" text="第x页 / 共x页，共xxx条记录"/>
+					<mx:LinkButton id="fPage" label="首页" click="showFirstPage(event)" color="#002AFF"/>
+					<mx:LinkButton id="pPage" label="上一页" click="showPreviousPage(event)" color="#002AFF"/>
+					<mx:Text width="15" text="第"/>
+					<s:NumericStepper id="txiPage"/>
+					<mx:Text width="15" text="页"/>
+					<mx:LinkButton id="nPage" label="下一页" click="showNextPage(event)" color="#002AFF"/>
+					<mx:LinkButton id="lPage" label="尾页" click="showLastPage(event)" color="#002AFF"/>
+				</mx:HBox>
+				
+				<s:HGroup y="490" width="200" height="50" gap="20" horizontalCenter="0">
+					<s:Button width="80" label="删除所选" cornerRadius="3"/>
+					<s:Button width="50" label="转发" cornerRadius="3"/>
+					<s:Button width="50" label="重发" cornerRadius="3"/>
+					<s:Button y="495" height="25" label="&lt;&lt;返回" buttonMode="true"
+							  chromeColor="#F28D21"
+							  click="dispatchEvent(new Event('Back2HomeEvent', true, false))"
+							  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+							  horizontalCenter="20"/>
+				</s:HGroup>
+			</s:Group>
+			
+		</s:Scroller>
+	</s:VGroup>
+	
+	
+</s:BorderContainer>

@@ -1,0 +1,546 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				   xmlns:s="library://ns.adobe.com/flex/spark"
+				   xmlns:mx="library://ns.adobe.com/flex/mx"
+				   xmlns:utilservice="services.utilservice.*"
+				   xmlns:userservice="services.userservice.*"
+				   width="100%" height="100%" backgroundColor="#F1F4F8" borderVisible="true"
+				   borderWeight="1" cornerRadius="10" creationComplete="firstInit()"
+				   dropShadowVisible="true">
+	<fx:Declarations>
+		<s:CallResponder id="GetStrListResult"/>
+		<utilservice:UtilService id="utilService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<s:CallResponder id="QueryResult"/>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+		<mx:DateFormatter id="FD" formatString="YYYY年MM月DD日 HH时MM分SS秒" />
+		<s:CallResponder id="DeleteResult"/>
+		<s:CallResponder id="ExportExcelResult"/>
+		<userservice:UserService id="userService"
+								 fault="Alert.show(event.fault.faultString + '\n' + event.fault.faultDetail)"
+								 showBusyCursor="true"/>
+		<s:CallResponder id="DeleteAllResult"/>
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			import contract.EditFriend;
+			
+			import entity.AuthenticationInfo;
+			import entity.SMS;
+			import entity.ServiceURL;
+			import entity.User;
+			
+			import flash.utils.Dictionary;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.controls.dataGridClasses.DataGridColumn;
+			import mx.events.CloseEvent;
+			import mx.events.DataGridEvent;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			import mx.rpc.events.FaultEvent;
+			import mx.rpc.events.ResultEvent;
+			import mx.utils.ObjectUtil;
+			import mx.utils.StringUtil;
+			
+			import myevent.DataGridEvent;
+			import mx.managers.CursorManager;
+			
+			private var page:int = 0;
+			private var count:int = 0;
+			
+			private var pageIndex:int = 0;
+			//private var pageSize:int = 2;
+			private var pageSize:int = AuthenticationInfo.PageSize;
+			private var totalPage:int = 0;
+			
+			private var delCount:int = 0;
+			
+			private var selectedItems:ArrayCollection = new ArrayCollection();
+			
+			public function firstInit():void 
+			{
+				adgTable.addEventListener("selectRow",selectHandler);
+				init();
+			}
+			
+			private function selectHandler(evt:myevent.DataGridEvent):void{
+				if(evt.isSelect){
+					var obj:Object = new Object;
+					obj.id = evt.o.id;
+					obj.name = evt.o.姓名;
+					obj.tel = evt.o.固定电话;
+					obj.Mobile = evt.o.手机号;
+					obj.email = evt.o.Email;
+					obj.birthday = evt.o.生日;
+					obj.Company = evt.o.单位;
+					obj.addr = evt.o.地址;
+					obj.content = evt.o.备注;
+					obj.index = adgTable.selectedIndex;
+					for (var i:int; i < selectedItems.length ; ++i) {
+						if (selectedItems[i].id == obj.id) {
+							return;
+						}
+					}
+					selectedItems.addItem(obj);
+				}else{
+					for (var i:int; i < selectedItems.length ; ++i) {
+						if (selectedItems[i].id == evt.o.id) {
+							selectedItems.removeItemAt(i);
+							return;
+						}
+					}
+				}
+			}
+			
+			public function init():void
+			{
+				//var condition:String = "[分组id]='" + cbxGroups.selectedItem.data + "'";
+				//GetStrListResult.token = utilService.GetStrList("群发簿", condition, "号码", AuthenticationInfo.token);			
+				reset();
+				adgTable.dataProvider = null;
+				txiPage.maximum = 0;
+				txiPage.minimum = 0;
+				txiPage.value = 0;	
+				page = 0;
+				count = 0;
+				txtPageTag.text = "第" + txiPage.value.toString() + "页 / 共" + page.toString() + "页，共" + count.toString() + "条记录";
+				
+				//清空checkbox的选择
+				for (var i:int=0;i<adgTable.dataProvider.length;i++){
+					adgTable.indexToItemRenderer(i).document.check.selected = false
+				}
+				
+				//获取分组id信息
+				//utilService.GetNoGroups(User.id, "通信录");
+				//utilService.addEventListener(ResultEvent.RESULT,cbxGroup_handler);
+				//utilService.addEventListener(FaultEvent.FAULT,onFault)
+			}
+			
+			/*
+			protected function cbxGroup_handler(event:ResultEvent):void
+			{
+				var arr:ArrayCollection = event.result as ArrayCollection;
+				var obj:Object = new Object;
+				obj.label = "全部";
+				obj.data = ""
+				arr.addItemAt(obj, 0)
+				cbxGroup.dataProvider = arr;
+				cbxGroup.selectedIndex = 0;
+			}
+			*/
+			
+			internal function onFault(evt:FaultEvent):void
+			{
+				Alert.show(evt.fault.faultDetail.toString());
+			}
+			
+			protected function showFirstPage(event:MouseEvent):void {
+				txiPage.value = 0;
+				var conditon:String = checkCondition();
+				submit(conditon);
+			}
+			
+			protected function showPreviousPage(event:MouseEvent):void {
+				if (pageIndex > 0)
+					txiPage.value -= 1;
+				var conditon:String = checkCondition();
+				submit(conditon);
+			}
+			
+			protected function showNextPage(event:MouseEvent):void {
+				if (pageIndex < page-1)
+					txiPage.value += 1;
+				var conditon:String = checkCondition();
+				submit(conditon);
+			}
+			
+			protected function showLastPage(event:MouseEvent):void {
+				txiPage.value = page;
+				var conditon:String = checkCondition();
+				submit(conditon);
+			}
+			
+			protected function btnSubmit_clickHandler(event:MouseEvent):void
+			{
+				var conditon:String = checkCondition();
+				submit(conditon);
+			}
+			
+			protected function submit(condition:String):void {
+				
+				if (txiPage.value > 0)
+					pageIndex = txiPage.value - 1;
+				else 
+					pageIndex = 0;
+				//Alert.show("condition:"+condition+"\nindex:"+pageIndex.toString()+"\nsize:"+pageSize.toString()+"\ntoken:"+AuthenticationInfo.token);
+				QueryResult.token = utilService.Query(pageIndex.toString(), pageSize.toString(), "通信录", "姓名 desc", "*", condition, AuthenticationInfo.token);
+				QueryResult.addEventListener(ResultEvent.RESULT,submit_handler);
+				QueryResult.addEventListener(FaultEvent.FAULT,onFault);	
+			}
+			
+			protected function checkCondition():String {
+				var condition:String = " 用户id='" + User.id + "' ";
+				if (txiName.text != "") {
+					condition += " and 姓名 like '%" + txiName.text + "%' "
+				}
+				
+				if (txiCompany.text != "") {
+					condition += " and 单位 like '%" + txiCompany.text + "%' "
+				}
+				
+				/*
+				if (cbxGroup.selectedItem.label != "全部") {
+					condition += " and 组id='" + cbxGroup.selectedItem.data + "' "
+				}
+				*/
+				
+				return condition;	
+				
+			}
+			
+			protected function submit_handler(event:ResultEvent):void
+			{
+				var result:XML = XML(event.result);
+				//var result:XML = XML(event.result as String);
+				//var results:XMLList = result.children();
+				//Alert.show(result.status);
+				adgTable.dataProvider = null;
+				adgTable.dataProvider = result.NewDataSet.Table;
+				
+				page = int(result.status.page);
+				count = int(result.status.count);
+				txiPage.value = pageIndex + 1;
+				txiPage.minimum = 1;
+				txiPage.maximum = page;
+				
+				//Alert.show("page:"+page+", count:"+count);
+				
+				txtPageTag.text = "第" + txiPage.value.toString() + "页 / 共" + page.toString() + "页，共" + count.toString() + "条记录";
+				
+				selectedItems.removeAll();
+				
+				//清空checkbox的选择
+				for (var i:int=0;i<adgTable.dataProvider.length;i++){
+					adgTable.indexToItemRenderer(i).document.check.selected = false
+				}
+				
+			}
+			
+			protected function btnReset_clickHandler(event:MouseEvent):void
+			{
+				reset();
+			}
+			
+			protected function reset():void
+			{
+				txiName.text = "";
+				txiCompany.text = "";
+				//cbxGroup.selectedIndex = 0;
+			}
+			
+			
+			private function formatDate(item:Object,column:DataGridColumn):String{
+				if (item[column.dataField] == "")
+					return "未填写";
+				var str:String = item[column.dataField];
+				var datetime:String = str.substr(0,10);
+				return datetime;
+			}
+			
+			
+			protected function btnDelete_clickHandler(event:MouseEvent):void
+			{
+				if (selectedItems.length == 0) {
+					Alert.show("请先选择要删除的条目！");
+					return;
+				}
+				
+				Alert.show("确定要删除" + selectedItems.length.toString() + "条记录吗？","提示",Alert.YES|Alert.NO,null,function(event:CloseEvent):void {
+					if(event.detail == Alert.YES) {
+//						delCount = selectedItems.length;
+//						var condition:String = " id='" + selectedItems[0].id + "' "
+//						DeleteResult.token = utilService.Delete(User.id, User.userid, "通信录", condition, AuthenticationInfo.token);
+//						DeleteResult.addEventListener(ResultEvent.RESULT,delete_handler);
+//						DeleteResult.addEventListener(FaultEvent.FAULT,onFault)
+						
+						var IDs:String = "";
+						var isFirst:Boolean = true;
+						for (var i:int = 0; i < selectedItems.length; ++i) {
+							if (isFirst) {
+								IDs = selectedItems[i].id;
+								isFirst = false;
+							} else {
+								IDs += ","+selectedItems[i].id;
+							}
+						}
+						
+						DeleteAllResult.token = utilService.DeleteAll(User.id, User.userid, "通信录", "id", IDs, AuthenticationInfo.token);
+						DeleteAllResult.addEventListener(ResultEvent.RESULT,delete_handler);
+						DeleteAllResult.addEventListener(FaultEvent.FAULT,onFault)
+					}		
+				})
+			}
+			
+			protected function delete_handler(event:ResultEvent):void
+			{
+				var result:String = event.result as String;
+				Alert.show(result);
+				var conditon:String = checkCondition();
+				submit(conditon);
+				/*
+				if (result == "删除成功！" && selectedItems.length > 0) {
+					selectedItems.removeItemAt(0);
+					//全部删除完成后，调用刷新
+					if (selectedItems.length == 0) {
+						var conditon:String = checkCondition();
+						submit(conditon);
+						Alert.show("成功删除" + delCount.toString() + "条记录！");
+						//清空checkbox的选择
+						for (var i:int=0;i<adgTable.dataProvider.length;i++){
+							adgTable.indexToItemRenderer(i).document.check.selected = false
+						}
+						return;
+					}
+					var condition:String = " id='" + selectedItems[0].id + "' "
+					DeleteResult.token = utilService.Delete(User.id, User.userid, "通信录", condition, AuthenticationInfo.token);
+					//Alert.show(selectedItems.length.toString())
+				}
+				*/
+			}
+			
+			protected function btnExport_clickHandler(event:MouseEvent):void
+			{
+				var allNull:Boolean=true;
+				for each(var o:Object in adgTable.dataProvider) {
+					if(o.myColumnName != null) {
+						allNull=false;
+						break;
+					}
+				}
+				
+				if (allNull) {
+					Alert.show("没有可以导出的数据！");
+					return;
+				}
+				
+				var conditon:String = checkCondition();
+				
+				ExportExcelResult.token = userService.ExportExcel(User.id, conditon, AuthenticationInfo.token);
+				ExportExcelResult.addEventListener(ResultEvent.RESULT,export_handler);
+				ExportExcelResult.addEventListener(FaultEvent.FAULT,onFault)
+			}
+			
+			protected function export_handler(event:ResultEvent):void
+			{
+				var result:String = event.result as String;
+				if (result == "生成成功！") {
+					//Alert.show("http://220.165.8.124:7000/File/" + User.id + ".xls");
+					navigateToURL(new URLRequest(ServiceURL.url + "/File/" + User.id + ".xls"));
+					//downLoadFiles(ServiceURL.url + "/File/" + User.id + ".xls")
+				} else {
+					Alert.show(result);
+				}
+			}
+			
+			protected function btnSend_clickHandler(event:MouseEvent):void
+			{
+				
+				if (selectedItems.length > 1) {
+					var isFirst:Boolean = true;
+					var tels:String = "";
+					for each (var obj:Object in selectedItems) {
+						if (isFirst) {
+							tels += obj.Mobile;
+							isFirst = false;
+						} else {
+							tels += "," + obj.tel;
+						}
+					}
+
+					SMS.tels = tels;
+					this.dispatchEvent(new Event("FriendListSendEvent"));
+					//Alert.show(tels);
+					
+					//清空checkbox的选择
+					for (var i:int=0;i<adgTable.dataProvider.length;i++){
+						adgTable.indexToItemRenderer(i).document.check.selected = false
+					}
+					
+				} else {
+					Alert.show("请先选择要发送的联系人！");
+				}
+			}
+			
+			protected function btnEdit_clickHandler(event:MouseEvent):void
+			{
+				if (selectedItems.length == 0) {
+					Alert.show("请先选择要编辑的联系人！");
+					return;
+				}
+				
+				if (selectedItems.length > 1) {
+					Alert.show("一次只能编辑一条！");
+					return;
+				}
+				
+				
+				if (selectedItems.length == 1) {
+					var editForm:EditFriend = new EditFriend();
+					PopUpManager.addPopUp(editForm, this, true);    
+					PopUpManager.centerPopUp(editForm);
+					editForm.init(selectedItems[0].id, selectedItems[0].name, selectedItems[0].Mobile, selectedItems[0].tel
+						, selectedItems[0].email,selectedItems[0].birthday, selectedItems[0].Company
+						, selectedItems[0].addr, selectedItems[0].content);
+				}
+				//清空checkbox的选择
+				for (var i:int=0;i<adgTable.dataProvider.length;i++){
+					adgTable.indexToItemRenderer(i).document.check.selected = false
+				}
+				
+			}
+			
+			
+			protected function btnSelectAll_clickHandler(event:MouseEvent):void
+			{
+				selectedItems.removeAll();
+				//清空checkbox的选择
+				for (var i:int=0;i<adgTable.dataProvider.length;i++){
+					adgTable.indexToItemRenderer(i).document.check.selected = true;	
+					
+					var obj:Object = new Object;
+					obj.id = adgTable.dataProvider[i].id;
+					obj.name = adgTable.dataProvider[i].姓名;
+					obj.tel = adgTable.dataProvider[i].固定电话;
+					obj.Mobile = adgTable.dataProvider[i].手机号;
+					obj.email = adgTable.dataProvider[i].Email;
+					obj.birthday = adgTable.dataProvider[i].生日;
+					obj.Company = adgTable.dataProvider[i].单位;
+					obj.addr = adgTable.dataProvider[i].地址;
+					obj.content = adgTable.dataProvider[i].备注;
+					obj.index = i;
+					selectedItems.addItem(obj);
+				}
+				
+				//Alert.show(selectedItems.length.toString())
+			}
+			
+			protected function btnClearAll_clickHandler(event:MouseEvent):void
+			{
+				//清空checkbox的选择
+				for (var i:int=0;i<adgTable.dataProvider.length;i++){
+					adgTable.indexToItemRenderer(i).document.check.selected = false;	
+				}
+				selectedItems.removeAll();
+			}
+			
+			var downloadURL:URLRequest;
+			var DownLoadfile:FileReference; //这是要主要的地方
+			//http://XX.XX.XX.XX:8080/upload/main.zip
+			private function downLoadFiles(urlAdd:String):void
+			{
+				CursorManager.setBusyCursor();
+				downloadURL = new URLRequest(urlAdd);
+				DownLoadfile = new FileReference();
+				configureListeners(DownLoadfile);
+				DownLoadfile.download(downloadURL);
+				
+			}
+			private function configureListeners(dispatcher:IEventDispatcher):void {
+				dispatcher.addEventListener(Event.COMPLETE, completeHandler);
+				CursorManager.removeBusyCursor();
+				
+			}
+			
+			private function completeHandler(event:Event):void {
+				mx.controls.Alert.show("文件下载成功");
+			}
+			
+		]]>
+	</fx:Script>
+	<s:VGroup x="0" y="0" width="100%" height="100%">
+		<s:BorderContainer top="0" width="100%" height="30" backgroundColor="#6A94BA"
+						   borderVisible="false" borderWeight="0" cornerRadius="10"
+						   horizontalCenter="0">
+			<s:BorderContainer right="-1" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			<s:BorderContainer left="0" bottom="1" width="16" height="21"
+							   backgroundColor="#6A94BA" borderVisible="false">
+			</s:BorderContainer>
+			
+			<s:Image x="24" y="3" source="img/bg/tab.gif"/>
+			<s:Label left="57" top="10" fontFamily="中易黑体" fontSize="14" fontWeight="bold" text="联系人列表"/>
+		</s:BorderContainer>
+		<s:Scroller width="100%" height="100%">
+			<s:Group x="158" y="225" width="100%" height="100%">
+				<s:Label x="23" y="10" height="22" text="姓名:" verticalAlign="middle"/>
+				<s:TextInput id="txiName" x="58" y="9"/>
+				<s:Label x="204" y="9" height="22" text="单位:" verticalAlign="middle"/>
+				<s:TextInput id="txiCompany" x="239" y="9"/>
+				<s:Button x="392" y="10" width="50" label="查询" click="btnSubmit_clickHandler(event)"
+						  cornerRadius="3"/>
+				<s:Button id="btnReset" x="460" y="10" width="80" label="清空条件"
+						  click="btnReset_clickHandler(event)" cornerRadius="3"/>
+				<!--
+				<s:Label x="388" y="10" height="22" text="分组:" verticalAlign="middle"/>
+				<s:DropDownList id="cbxGroup" x="420" y="9" labelField="label"/>
+				<s:Button x="599" y="9" width="50" label="查询" click="btnSubmit_clickHandler(event)"
+						  cornerRadius="3"/>
+				<s:Button id="btnReset" x="667" y="9" width="80" label="清空条件"
+						  click="btnReset_clickHandler(event)" cornerRadius="3"/>
+				-->
+				<mx:DataGrid id="adgTable" y="49" left="20" right="20" height="395" >
+					<mx:columns>
+						<mx:DataGridColumn headerText="选择" itemRenderer="view.CheckBox" width="40" />
+						<mx:DataGridColumn dataField="姓名" headerText="姓名" width="100"/>
+						<mx:DataGridColumn dataField="手机号" headerText="手机号" width="100"/>
+						<mx:DataGridColumn dataField="生日" headerText="生日" width="100" labelFunction="formatDate"/>
+						<mx:DataGridColumn dataField="Email" headerText="Email" width="100"/>		
+						<mx:DataGridColumn dataField="单位" headerText="单位" width="200"/>
+						<mx:DataGridColumn dataField="备注" headerText="备注"/>
+					</mx:columns>
+				</mx:DataGrid>
+				
+				<s:HGroup y="490" width="200" height="50" gap="20" horizontalCenter="0">
+					<s:Button width="80" label="删除所选" click="btnDelete_clickHandler(event)"
+							  cornerRadius="3"/>
+					<s:Button width="80" label="群发短信" cornerRadius="3" click="btnSend_clickHandler(event)"/>
+					<s:Button id="btnEdit" width="50" label="修改" click="btnEdit_clickHandler(event)"
+							  cornerRadius="3"/>
+					<s:Button width="80" label="导出联系人" click="btnExport_clickHandler(event)"
+							  cornerRadius="3"/>
+					<s:Button y="495" height="25" label="&lt;&lt;返回" buttonMode="true"
+							  chromeColor="#F28D21"
+							  click="dispatchEvent(new Event('Back2HomeEvent', true, false))"
+							  color="#FFFFFF" cornerRadius="3" fontSize="14" fontWeight="bold"
+							  horizontalCenter="20"/>
+				</s:HGroup>
+				
+				<mx:HBox y="452" right="20" width="600">
+					<mx:Spacer/>
+					<mx:Text id="txtPageTag" width="200" text="第0页 / 共0页，共0条记录"/>
+					<mx:LinkButton id="fPage" label="首页" click="showFirstPage(event)" color="#002AFF"/>
+					<mx:LinkButton id="pPage" label="上一页" click="showPreviousPage(event)" color="#002AFF"/>
+					<mx:Text width="15" text="第"/>
+					<s:NumericStepper id="txiPage"/>
+					<mx:Text width="15" text="页"/>
+					<mx:LinkButton id="nPage" label="下一页" click="showNextPage(event)" color="#002AFF"/>
+					<mx:LinkButton id="lPage" label="尾页" click="showLastPage(event)" color="#002AFF"/>
+				</mx:HBox>
+				<s:HGroup y="452" left="20" width="100" height="30" gap="2">
+					<s:Button id="btnSelectAll" width="50" label="全选"
+							  click="btnSelectAll_clickHandler(event)"/>
+					<s:Button id="btnClearAll" width="50" label="清空"
+							  click="btnClearAll_clickHandler(event)"/>
+				</s:HGroup>
+				
+			</s:Group>	
+		</s:Scroller>
+	</s:VGroup>
+	
+	
+</s:BorderContainer>
